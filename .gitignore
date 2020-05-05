@@ -1,4 +1,9 @@
 # Spyder files
 .spyproject
 
+# Folders
+notebooks
+data
+tweezepy.egg-info
 # Other files
+*.pyc
