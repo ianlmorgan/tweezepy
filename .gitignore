@@ -2,6 +2,7 @@
 .spyproject
 
 # Folders
+build
 notebooks
 data
 tweezepy.egg-info
