@@ -6,11 +6,102 @@ Author: Ian L. Morgan
 email: ilmorgan@ucsb.edu
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+
 
 from scipy.optimize import minimize,curve_fit
 from scipy.stats import gamma
 
+class AV:
+    """
+    The AV object holds allan variance related functions. 
+    
+    Parameters
+    ----------
+    trace : array
+        1-D array of data collected with acquisition freq
+    freq : float or int
+        acquisition frequency in Hz
+        
+    Attributes
+    ----------
+    trace : array
+        stored trace
+    freq : float or int
+        stored acquisition frequency
+    results : dataframe
+        allan variance data
+    """
+    def __init__(self, trace, freq):
+        self.trace = trace
+        self.freq = freq
+        taus,etas,oavs = allanvar(trace, freq = 400)
+        self.results = pd.DataFrame({'taus':taus,'oavs': oavs,'etas':etas})
+    def plot(self):
+        """
+        Plots the overlapping allan variance.
+
+        Returns
+        -------
+        fig : figure.
+            The matplotlib figure instance.
+
+        """
+        fig = plt.figure()
+        plt.plot('taus','oavs',data=self.results,marker='o',lw=0)
+        plt.xlabel(r'$\tau$ (s)')
+        plt.ylabel(r'$\sigma^2$ (s)')
+        plt.xscale('log')
+        plt.yscale('log')
+        return fig
+    def mlefit(self, guess = [1.15E-5,0.001]):   
+        """
+        
+
+        Parameters
+        ----------
+        guess : TYPE, optional
+            DESCRIPTION. The default is [1.15E-5,0.001].
+
+        Returns
+        -------
+        alpha : float
+            alpha
+        kappa : float
+            kappa in pNnm
+
+        """
+        alpha, kappa = MLEfit(self.results.taus,
+                                        self.results.etas,
+                                        self.results.oavs,
+                                        guess = guess)
+        self.alpha = alpha
+        self.kappa = kappa
+        self.results['yhat'] = SMMAV(self.results.taus,
+                                     self.alpha,
+                                     self.kappa)
+        scale = self.results.yhat/self.results.etas
+        self.results['ostd'] = gamma.std(self.results.oavs,
+                                         self.results.etas,
+                                         scale=scale)
+        
+        def plot():
+            # Plot the points with errorbars
+            plt.errorbar('taus','oavs',yerr='ostd',
+                         data=self.results,fmt = 'o',label = None)
+            # Plot the function with best-fit values from the mle fit
+            plt.plot('taus','yhat',
+                     data=self.results,label = 'MLE fit')
+            plt.xlabel(r'$\tau$ (s)')
+            plt.ylabel(r'$\sigma^2$ (s)')
+            plt.xscale('log')
+            plt.yscale('log')
+            plt.legend()
+        self.plot = plot
+        return alpha,kappa
+    
 def allanvar(xtrace,freq):
     """
     Takes an array of numbers and returns the overlapping allan variance.
@@ -83,17 +174,19 @@ def negLL(p,t,e,o):
     a,k = p[0],p[1]
     yhat = SMMAV(t,a,k)
     return -np.sum(gamma.logpdf(o,e,scale=yhat/e)) 
-def MLEfit(xtrace,freq,guess = [1.15E-5,0.001]):
+def MLEfit(taus,etas,oavs,guess = [1.15E-5,0.001]):
     """
     Performs a basic maximum likelihood estimation on xtrace.
     Returns alpha and kappa.
 
     Parameters
     ----------
-    xtrace : series,array, or list?
-        The xtrace data.
-    freq : float or int
-        data acquisition frequency.
+    taus : array
+        overlapping time bins.
+    etas : array
+        shape factors.
+    oavs : array
+        overlapping allan variances
     guess : list, optional
         alpha and kappa guesses. The default is [1.15E-5,0.001].
 
@@ -107,9 +200,7 @@ def MLEfit(xtrace,freq,guess = [1.15E-5,0.001]):
     Notes
     -----
     Need to update so it does fixed alpha.
-    """
-    taus,etas,oavs = allanvar(xtrace,freq)    
-    guess = np.array([1.15E-5,0.001])
+    """  
     popt,pcov = curve_fit(SMMAV,taus[:-4],oavs[:-4],p0 = guess)
     results = minimize(negLL, popt, args = (taus[:-4],etas[:-4],oavs[:-4]), 
                        method = 'Nelder-Mead')
