@@ -78,8 +78,11 @@ def SMMAV(t,alpha,kappa):
                                        alpha/(2.*kappa*t) * np.exp(-2.*kappa*t/alpha) -
                                        3*alpha/(2.*kappa*t))
     return oav
-
-
+def negLL(p,t,e,o):
+    """Takes params, taus,etas, and oavs and returns the negative log likelihood. """
+    a,k = p[0],p[1]
+    yhat = SMMAV(t,a,k)
+    return -np.sum(gamma.logpdf(o,e,scale=yhat/e)) 
 def MLEfit(xtrace,freq,guess = [1.15E-5,0.001]):
     """
     Performs a basic maximum likelihood estimation on xtrace.
@@ -106,12 +109,9 @@ def MLEfit(xtrace,freq,guess = [1.15E-5,0.001]):
     Need to update so it does fixed alpha.
     """
     taus,etas,oavs = allanvar(xtrace,freq)    
+    guess = np.array([1.15E-5,0.001])
     popt,pcov = curve_fit(SMMAV,taus[:-4],oavs[:-4],p0 = guess)
-    # Define the negative log likelihood
-    negLL = lambda p,t,e,o: -np.sum(gamma.logpdf(oavs,etas,scale=SMMAV(t,p[0],p[1])/etas)) 
-    results = minimize(negLL, # minimize the negative log likelihood 
-                       popt, # initial guess
-                       args = (taus[:-4],etas[:-4],oavs[:-4]), 
+    results = minimize(negLL, popt, args = (taus[:-4],etas[:-4],oavs[:-4]), 
                        method = 'Nelder-Mead')
     alpha,kappa = results['x']
     return alpha,kappa
