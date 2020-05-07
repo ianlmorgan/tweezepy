@@ -1,5 +1,13 @@
 # -*- coding: utf-8 -*-
 """
+The allanvar module.
+
+Example usage:
+    from tweezepy.allanvar import AV
+    trace = np.arange(0,5,0.1)
+    av = AV(trace,0.1)
+    av.plot()
+    
 Created on Mon May  4 11:51:23 2020
 
 Author: Ian L. Morgan
@@ -41,7 +49,7 @@ class AV:
         self.results = pd.DataFrame({'taus':taus,'oavs': oavs,'etas':etas})
     def plot(self):
         """
-        Plots the overlapping allan variance.
+        Plots the overlapping allan variance on a loglog plot.
 
         Returns
         -------
@@ -62,8 +70,8 @@ class AV:
 
         Parameters
         ----------
-        guess : TYPE, optional
-            DESCRIPTION. The default is [1.15E-5,0.001].
+        guess : list, optional
+            parameter guesses. The default is [1.15E-5,0.001].
 
         Returns
         -------
@@ -88,6 +96,16 @@ class AV:
                                          scale=scale)
         
         def plot():
+            """
+            Reassigns the plotting function after the mle fit to plot errors and fits.  
+            
+            Returns
+            -------
+            fig : figure.
+                The matplotlib figure instance.
+
+            """
+            plt.figure()
             # Plot the points with errorbars
             plt.errorbar('taus','oavs',yerr='ostd',
                          data=self.results,fmt = 'o',label = None)
@@ -99,6 +117,7 @@ class AV:
             plt.xscale('log')
             plt.yscale('log')
             plt.legend()
+            return fig
         self.plot = plot
         return alpha,kappa
     
