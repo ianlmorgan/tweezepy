@@ -53,17 +53,17 @@ class AV:
 
         Returns
         -------
-        fig : figure.
-            The matplotlib figure instance.
+        ax : ax.
+            The matplotlib axis instance.
 
         """
-        fig = plt.figure()
-        plt.plot('taus','oavs',data=self.results,marker='o',lw=0)
-        plt.xlabel(r'$\tau$ (s)')
-        plt.ylabel(r'$\sigma^2$ (s)')
-        plt.xscale('log')
-        plt.yscale('log')
-        return fig
+        fig,ax = plt.subplots()
+        ax.plot('taus','oavs',data=self.results,marker='o',lw=0)
+        ax.set_xlabel(r'$\tau$ (s)')
+        ax.set_ylabel(r'$\sigma^2$ (s)')
+        ax.set_xscale('log')
+        ax.set_yscale('log')
+        return ax
     def mlefit(self, guess = [1.15E-5,0.001]):   
         """
         
@@ -101,23 +101,23 @@ class AV:
             
             Returns
             -------
-            fig : figure.
-                The matplotlib figure instance.
+            ax : ax.
+                The matplotlib axis instance.
 
             """
-            plt.figure()
+            fig, ax = plt.subplots()
             # Plot the points with errorbars
-            plt.errorbar('taus','oavs',yerr='ostd',
+            ax.errorbar('taus','oavs',yerr='ostd',
                          data=self.results,fmt = 'o',label = None)
             # Plot the function with best-fit values from the mle fit
-            plt.plot('taus','yhat',
+            ax.plot('taus','yhat',
                      data=self.results,label = 'MLE fit')
-            plt.xlabel(r'$\tau$ (s)')
-            plt.ylabel(r'$\sigma^2$ (s)')
-            plt.xscale('log')
-            plt.yscale('log')
-            plt.legend()
-            return fig
+            ax.set_xlabel(r'$\tau$ (s)')
+            ax.set_ylabel(r'$\sigma^2$ (s)')
+            ax.set_xscale('log')
+            ax.set_yscale('log')
+            ax.legend()
+            return ax
         self.plot = plot
         return alpha,kappa
     
