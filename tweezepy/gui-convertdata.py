@@ -12,12 +12,7 @@ from matplotlib.backend_bases import key_press_handler
 from pathlib import Path # easy path manipulation
 from tkinter import Tk,filedialog
 
-
-import sys
-sys.path.append(r'C:/Users/ianmo/Google Drive/Tweezer Analysis/src/scriptsnew')
-
-#from Plotting import zfplot
-from Traceanalysis_v2 import Trace, Refidx, find_surface 
+from convertdata import Trace, Refidx, find_surface 
 
 def plotzf(fig,notes):
     df = Trace(notes['dpath'], 
@@ -130,7 +125,7 @@ class Application(tk.Frame):
         self.entries['nexps'].insert(0,'3')
         self.entries['pxn'].insert(0,'118.2')
         self.entries['freq'].insert(0,'400')
-        self.dpath = Path(r"C:\Users\ianmo\Google Drive\Tweezer Analysis\data\raw\dsDNA\3-15-20\1trk traces\000")
+        #self.dpath = Path(r"..\data\raw\dsDNA\3-15-20\1trk traces\000")
     
 class Graphwindow(tk.Frame):
     def __init__(self, master = None,notes = None):
@@ -275,7 +270,7 @@ def datadir():
 if __name__ == '__main__':
     root = tk.Tk()
     app = Application(master=root)
-    app.master.title("My Do-Nothing Application")
+    app.master.title("Application to convert data")
     #app.master.maxsize(1000, 400)
     app.mainloop()
     # Select data directory
