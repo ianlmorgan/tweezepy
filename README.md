@@ -17,4 +17,5 @@ or using pip:
     
 # Contents
 The `tweezepy` package includes the following modules:
-* 'allanvar' - tools to calculate and fit the allan variance
+* 'smmcalibration' - tools to calculate and perform mle fits to the allan variance and power spectral density
+

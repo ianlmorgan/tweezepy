@@ -20,7 +20,9 @@ import pandas as pd
 
 
 from scipy.optimize import minimize,curve_fit
+from scipy.signal import welch
 from scipy.stats import gamma
+from numpy import pi,exp,sin,sinh,cos,cosh
 
 class AV:
     """
@@ -60,14 +62,12 @@ class AV:
         fig,ax = plt.subplots()
         ax.plot('taus','oavs',data=self.results,marker='o',lw=0)
         ax.set_xlabel(r'$\tau$ (s)')
-        ax.set_ylabel(r'$\sigma^2$ (s)')
+        ax.set_ylabel(r'$\sigma^2$ [nm$^2$]')
         ax.set_xscale('log')
         ax.set_yscale('log')
         return ax
-    def mlefit(self, guess = [1.15E-5,0.001]):   
+    def mlefit(self,fixed_alpha = None):   
         """
-        
-
         Parameters
         ----------
         guess : list, optional
@@ -81,20 +81,24 @@ class AV:
             kappa in pNnm
 
         """
-        alpha, kappa = MLEfit(self.results.taus,
-                                        self.results.etas,
-                                        self.results.oavs,
-                                        guess = guess)
-        self.alpha = alpha
-        self.kappa = kappa
-        self.results['yhat'] = SMMAV(self.results.taus,
-                                     self.alpha,
-                                     self.kappa)
+        if fixed_alpha == None:
+            guess = [1.15E-5,0.001]
+            func = SMMAV
+        else:
+            guess = [.001]
+            func = lambda t,k: SMMAV(t,fixed_alpha,k)
+        params = MLEfit(func,
+                        self.results.taus,
+                        self.results.etas,
+                        self.results.oavs,
+                        guess = guess)
+        self.params = params
+        self.results['yhat'] = func(self.results.taus, *params)
         scale = self.results.yhat/self.results.etas
         self.results['ostd'] = gamma.std(self.results.oavs,
                                          self.results.etas,
                                          scale=scale)
-        
+            
         def plot():
             """
             Reassigns the plotting function after the mle fit to plot errors and fits.  
@@ -108,19 +112,102 @@ class AV:
             fig, ax = plt.subplots()
             # Plot the points with errorbars
             ax.errorbar('taus','oavs',yerr='ostd',
-                         data=self.results,fmt = 'o',label = None)
+                         data=self.results,fmt = 'o',label = None, zorder=0)
             # Plot the function with best-fit values from the mle fit
             ax.plot('taus','yhat',
-                     data=self.results,label = 'MLE fit')
-            ax.set_xlabel(r'$\tau$ (s)')
-            ax.set_ylabel(r'$\sigma^2$ (s)')
+                     data=self.results,label = 'MLE fit', zorder=1)
+            ax.set_xlabel(r'$\tau$ [s]')
+            ax.set_ylabel(r'$\sigma^2$ [nm$^2$]')
             ax.set_xscale('log')
             ax.set_yscale('log')
             ax.legend()
             return ax
         self.plot = plot
-        return alpha,kappa
+        return params
+class PSD:
+    def __init__(self, trace, freq, nperseg = 1024):
+        self.trace = trace
+        self.freq = freq
+        f, Pxx_den = welch(trace, freq, nperseg=nperseg)
+        b = (2*len(trace)/nperseg) - 1
+        etas = np.ones_like(f)*b
+        self.results = pd.DataFrame({'f':f,'psd': Pxx_den,'etas':etas})
+    def plot(self):
+        """
+        Plots the overlapping allan variance on a loglog plot.
+
+        Returns
+        -------
+        ax : ax.
+            The matplotlib axis instance.
+
+        """
+        fig,ax = plt.subplots()
+        ax.plot('f','psd',data=self.results)
+        ax.set_xlabel(r'$f$ [Hz]')
+        ax.set_ylabel(r'$PSD$ [nm$^2$/Hz]')
+        ax.set_xscale('log')
+        ax.set_yscale('log')
+        return ax
     
+    def mlefit(self,fixed_alpha = None):   
+        """
+        Parameters
+        ----------
+        guess : list, optional
+            parameter guesses. The default is [1.15E-5,0.001].
+
+        Returns
+        -------
+        alpha : float
+            alpha
+        kappa : float
+            kappa in pNnm
+
+        """
+        if fixed_alpha == None:
+            guess = [1.15E-5,0.001]
+            func = lambda t,a,k: SMMPSD(t,self.freq,a,k)
+        else:
+            guess = [.001]
+            func = lambda t,k: SMMPSD(t,self.freq,fixed_alpha,k)
+        params = MLEfit(func,
+                        self.results.f,
+                        self.results.etas,
+                        self.results.psd,
+                        guess = guess)
+        self.params = params
+        self.results['yhat'] = func(self.results.f, *params)
+        scale = self.results.yhat/self.results.etas
+        self.results['psd_std'] = gamma.std(self.results.psd,
+                                            self.results.etas,
+                                            scale=scale)
+            
+        def plot():
+            """
+            Reassigns the plotting function after the mle fit to plot errors and fits.  
+            
+            Returns
+            -------
+            ax : ax.
+                The matplotlib axis instance.
+
+            """
+            fig, ax = plt.subplots()
+            # Plot the points with errorbars
+            ax.errorbar('f','psd',yerr='psd_std',
+                         data=self.results,fmt = 'o',label = None,zorder=0)
+            # Plot the function with best-fit values from the mle fit
+            ax.plot('f','yhat',
+                     data=self.results,label = 'MLE fit',zorder=1)
+            ax.set_xlabel(r'$f [Hz]$ (s)')
+            ax.set_ylabel(r'$PSD [nm^2/Hz]$ (s)')
+            ax.set_xscale('log')
+            ax.set_yscale('log')
+            ax.legend()
+            return ax
+        self.plot = plot
+        return params
 def allanvar(xtrace,freq):
     """
     Takes an array of numbers and returns the overlapping allan variance.
@@ -163,7 +250,7 @@ def allanvar(xtrace,freq):
         oavs[i] = s/(2.*(N-2.*mj+1.)*(mj*dt)**2.)
     return taus,etas,oavs
 
-def SMMAV(t,alpha,kappa):
+def SMMAV(t,a,k):
     """
     Function from Lansdorp et al. (2012) for the single-molecule allan variance.
 
@@ -179,32 +266,40 @@ def SMMAV(t,alpha,kappa):
     Returns
     -------
     oav : array
-        allan variance.
+        predicted allan variance.
 
     """
     kT = 4.1 # in pN*nm
-    oav = 2*kT*alpha/(kappa**2.*t) * (1. +
-                                       2.*alpha/(kappa*t) * np.exp(-kappa*t/alpha) -
-                                       alpha/(2.*kappa*t) * np.exp(-2.*kappa*t/alpha) -
-                                       3*alpha/(2.*kappa*t))
+    oav = 2.*kT*a/(k**2.*t) * (1. +
+                               2.*a/(k*t) * exp(-k*t/a) -
+                               a/(2.*k*t) * exp(-2.*k*t/a) -
+                               3*a/(2.*k*t)
+                              )
     return oav
-def negLL(p,t,e,o):
+def SMMPSD(f,fs,a,k):
+    kT = 4.1 # in pNnm
+    PSD = 2.*kT*a/k**3. * (k + 
+                           2.*a*fs*sin(pi*f/fs)**2. * sinh(k/(a*fs)) / (cos(2.*pi*f/fs) - 
+                                                                        cosh(k/(a*fs))
+                                                                        )
+                          )
+    return PSD
+def negLL(p,func,x,e,y):
     """Takes params, taus,etas, and oavs and returns the negative log likelihood. """
-    a,k = p[0],p[1]
-    yhat = SMMAV(t,a,k)
-    return -np.sum(gamma.logpdf(o,e,scale=yhat/e)) 
-def MLEfit(taus,etas,oavs,guess = [1.15E-5,0.001]):
+    yhat = func(x,*p)
+    return -np.sum(gamma.logpdf(y,e,scale=yhat/e)) 
+def MLEfit(func,x,etas,y,guess = [1.15E-5,0.001]):
     """
     Performs a basic maximum likelihood estimation on xtrace.
     Returns alpha and kappa.
 
     Parameters
     ----------
-    taus : array
+    taus : array_like
         overlapping time bins.
-    etas : array
+    etas : array_like
         shape factors.
-    oavs : array
+    oavs : array_like
         overlapping allan variances
     guess : list, optional
         alpha and kappa guesses. The default is [1.15E-5,0.001].
@@ -220,9 +315,9 @@ def MLEfit(taus,etas,oavs,guess = [1.15E-5,0.001]):
     -----
     Need to update so it does fixed alpha.
     """  
-    popt,pcov = curve_fit(SMMAV,taus[:-4],oavs[:-4],p0 = guess)
-    results = minimize(negLL, popt, args = (taus[:-4],etas[:-4],oavs[:-4]), 
+    popt,pcov = curve_fit(func,x[:],y[:],p0 = guess)
+    results = minimize(negLL, x0 = popt, args = (func,x[:],etas[:],y[:]), 
                        method = 'Nelder-Mead')
-    alpha,kappa = results['x']
-    return alpha,kappa
+    params = results['x']
+    return params
 
