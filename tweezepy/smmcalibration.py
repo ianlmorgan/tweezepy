@@ -16,12 +16,14 @@ email: ilmorgan@ucsb.edu
 
 import matplotlib.pyplot as plt
 import numpy as np
+
 import pandas as pd
 
 
 from scipy.optimize import minimize,curve_fit
 from scipy.signal import welch
 from scipy.stats import gamma
+from statsmodels.tools.numdiff import approx_hess
 from numpy import pi,exp,sin,sinh,cos,cosh
 
 class AV:
@@ -47,7 +49,7 @@ class AV:
     def __init__(self, trace, freq):
         self.trace = trace
         self.freq = freq
-        taus,etas,oavs = allanvar(trace, freq = 400)
+        taus,etas,oavs = allanvar(trace, freq = freq)
         self.results = pd.DataFrame({'taus':taus,'oavs': oavs,'etas':etas})
     def plot(self):
         """
@@ -66,7 +68,7 @@ class AV:
         ax.set_xscale('log')
         ax.set_yscale('log')
         return ax
-    def mlefit(self,fixed_alpha = None):   
+    def mlefit(self,fixed_alpha = None,guess = [1.15E-5,0.001]):   
         """
         Parameters
         ----------
@@ -80,19 +82,23 @@ class AV:
         kappa : float
             kappa in pNnm
 
-        """
-        if fixed_alpha == None:
-            guess = [1.15E-5,0.001]
-            func = SMMAV
+        """          
+
+        #assert type(guess) is list, "guess must be a list: %r" %guess
+            
+        if fixed_alpha == None:                
+            func = lambda t,a,k: SMMAV(t,a,k)
         else:
+            assert type(fixed_alpha) is float, "fixed_alpha must be a float: %r" %fixed_alpha
             guess = [.001]
             func = lambda t,k: SMMAV(t,fixed_alpha,k)
-        params = MLEfit(func,
-                        self.results.taus,
-                        self.results.etas,
-                        self.results.oavs,
-                        guess = guess)
+        params,se = MLEfit(func,
+                           self.results.taus,
+                           self.results.etas,
+                           self.results.oavs,
+                           guess = guess)
         self.params = params
+        self.se = se
         self.results['yhat'] = func(self.results.taus, *params)
         scale = self.results.yhat/self.results.etas
         self.results['ostd'] = gamma.std(self.results.oavs,
@@ -101,7 +107,7 @@ class AV:
             
         def plot():
             """
-            Reassigns the plotting function after the mle fit to plot errors and fits.  
+            Reassigns the plotting function after the mle fit to plot errors (standard deviations) and fits.  
             
             Returns
             -------
@@ -123,14 +129,20 @@ class AV:
             ax.legend()
             return ax
         self.plot = plot
-        return params
+        return params,se
 class PSD:
     def __init__(self, trace, freq, nperseg = 1024):
         self.trace = trace
         self.freq = freq
+         
         f, Pxx_den = welch(trace, freq, nperseg=nperseg)
+        # By default, scipy returns the one-sided PSD
+        # Lansdorp et al. (2012) uses the positive part of the two-sided PSD
+        # Not going to lie, figuring this out drove me crazy
+        # Divide by 2 to get the positive part of the two-sided PSD
+        Pxx_den /= 2
         b = (2*len(trace)/nperseg) - 1
-        etas = np.ones_like(f)*b
+        etas = np.full_like(f,b)
         self.results = pd.DataFrame({'f':f,'psd': Pxx_den,'etas':etas})
     def plot(self):
         """
@@ -144,13 +156,13 @@ class PSD:
         """
         fig,ax = plt.subplots()
         ax.plot('f','psd',data=self.results)
-        ax.set_xlabel(r'$f$ [Hz]')
-        ax.set_ylabel(r'$PSD$ [nm$^2$/Hz]')
+        ax.set_xlabel(r'f [Hz]')
+        ax.set_ylabel(r'PSD [nm$^2$/Hz]')
         ax.set_xscale('log')
         ax.set_yscale('log')
         return ax
     
-    def mlefit(self,fixed_alpha = None):   
+    def mlefit(self,fixed_alpha = None,guess = [1.15E-5,0.001]):   
         """
         Parameters
         ----------
@@ -165,18 +177,19 @@ class PSD:
             kappa in pNnm
 
         """
+        assert type(guess) is list, "guess must be a list: %r" %guess
         if fixed_alpha == None:
-            guess = [1.15E-5,0.001]
             func = lambda t,a,k: SMMPSD(t,self.freq,a,k)
         else:
-            guess = [.001]
+            assert type(fixed_alpha) is float, "fixed_alpha must be a float: %r" %fixed_alpha
             func = lambda t,k: SMMPSD(t,self.freq,fixed_alpha,k)
-        params = MLEfit(func,
-                        self.results.f,
-                        self.results.etas,
-                        self.results.psd,
-                        guess = guess)
+        params,se = MLEfit(func,
+                           self.results.f,
+                           self.results.etas,
+                           self.results.psd,
+                           guess = guess)
         self.params = params
+        self.se = se
         self.results['yhat'] = func(self.results.f, *params)
         scale = self.results.yhat/self.results.etas
         self.results['psd_std'] = gamma.std(self.results.psd,
@@ -185,7 +198,7 @@ class PSD:
             
         def plot():
             """
-            Reassigns the plotting function after the mle fit to plot errors and fits.  
+            Reassigns the plotting function after the mle fit to plot errors (standard deviations) and fits.  
             
             Returns
             -------
@@ -200,16 +213,17 @@ class PSD:
             # Plot the function with best-fit values from the mle fit
             ax.plot('f','yhat',
                      data=self.results,label = 'MLE fit',zorder=1)
-            ax.set_xlabel(r'$f [Hz]$ (s)')
-            ax.set_ylabel(r'$PSD [nm^2/Hz]$ (s)')
+            ax.set_xlabel(r'f [Hz] (s)')
+            ax.set_ylabel(r'PSD [nm$^2$/Hz] (s)')
             ax.set_xscale('log')
             ax.set_yscale('log')
             ax.legend()
             return ax
         self.plot = plot
-        return params
+        return params,se
 def allanvar(xtrace,freq):
     """
+    Estimate overlapping allan variance 
     Takes an array of numbers and returns the overlapping allan variance.
     Returns the taus, etas, and oavs.
 
@@ -238,9 +252,11 @@ def allanvar(xtrace,freq):
     m = np.logspace(0,maxn,maxn+1,base=2,dtype='int')  #bin sizes
     taus = m*dt # tau = m*tau_c
     etas = (N/m-1)/2 # shape factors
+    # See eratum for Eq. 18b
     phasedata = np.cumsum(xtrace) * dt # convert frequency data to phase data
     phasedata = np.insert(phasedata, 0, 0) # phase data should start at 0
-    oavs = np.zeros_like(taus) # creates array of zeros with the same length as taus
+    oavs = np.empty_like(taus) # creates array with the same shape as taus
+    # Calculate OAV as in Eq. 18a (in erratum)
     for i,mj in enumerate(m):
         # calculate overlapping allan variance for each m
         d2,d1,d0 = phasedata[2*mj:],phasedata[mj:],phasedata[:]
@@ -252,7 +268,7 @@ def allanvar(xtrace,freq):
 
 def SMMAV(t,a,k):
     """
-    Function from Lansdorp et al. (2012) for the single-molecule allan variance.
+    Eq. 17 from Lansdorp et al. (2012) for the single-molecule allan variance.
 
     Parameters
     ----------
@@ -277,17 +293,37 @@ def SMMAV(t,a,k):
                               )
     return oav
 def SMMPSD(f,fs,a,k):
-    kT = 4.1 # in pNnm
-    PSD = 2.*kT*a/k**3. * (k + 
-                           2.*a*fs*sin(pi*f/fs)**2. * sinh(k/(a*fs)) / (cos(2.*pi*f/fs) - 
-                                                                        cosh(k/(a*fs))
-                                                                        )
+    """
+    Eq. 7 in Lansdorp et al. (2012) for the single-molecule power spectral density that accounts for btoh aliasing and boxcar filtering. Takes frequency and gives the PSD.
+
+    Parameters
+    ----------
+    f : array-like
+        frequency.
+    fs : float
+        Acquisition frequency.
+    a : float
+        alpha.
+    k : float
+        kappa.
+
+    Returns
+    -------
+    PSD : array
+        power spectral density.
+
+    """
+    kT = 4.1 # in pN*nm
+    PSD = 2.*kT*a/k**3. * (k + (2.*a*fs*sin(pi*f/fs)**2. * sinh(k/(a*fs))) / (cos(2.*pi*f/fs) - 
+                                                                              cosh(k/(a*fs)))
                           )
     return PSD
 def negLL(p,func,x,e,y):
     """Takes params, taus,etas, and oavs and returns the negative log likelihood. """
     yhat = func(x,*p)
-    return -np.sum(gamma.logpdf(y,e,scale=yhat/e)) 
+    loglikelihood = gamma.logpdf(y,e,scale=yhat/e).sum()
+    negloglikelihood = -1 * loglikelihood
+    return negloglikelihood 
 def MLEfit(func,x,etas,y,guess = [1.15E-5,0.001]):
     """
     Performs a basic maximum likelihood estimation on xtrace.
@@ -306,18 +342,24 @@ def MLEfit(func,x,etas,y,guess = [1.15E-5,0.001]):
 
     Returns
     -------
-    alpha : float
-        alpha - drag on bead [input units].
-    kappa : float
-        kappa - spring constant in pN/nm.
+    params : array
+        best-fit parameters 
+    se : array
+        error associated with parameters
 
     Notes
     -----
     Need to update so it does fixed alpha.
     """  
-    popt,pcov = curve_fit(func,x[:],y[:],p0 = guess)
-    results = minimize(negLL, x0 = popt, args = (func,x[:],etas[:],y[:]), 
-                       method = 'Nelder-Mead')
+    popt,pcov = curve_fit(func,x,y,p0 = guess)
+    # Minimize the negative log likelihood
+    results = minimize(negLL, x0 = popt, args = (func,x,etas,y), 
+                       method = 'Nelder-Mead',options={'disp':True})
     params = results['x']
-    return params
+    # Nelder-mead doesn't return errors or a covariance matrix
+    # To determine the errors, we have to approximate the hessian
+    f = lambda p: negLL(p,func,x,etas,y)
+    hess = approx_hess(params,f)
+    se = np.sqrt(np.diag(np.linalg.inv(hess)))
+    return params,se
 

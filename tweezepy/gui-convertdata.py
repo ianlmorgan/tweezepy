@@ -11,21 +11,16 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from matplotlib.backend_bases import key_press_handler
 from pathlib import Path # easy path manipulation
 from tkinter import Tk,filedialog
+from tkinter.ttk import Progressbar
 
 from convertdata import Trace, Refidx, find_surface 
-
-def plotzf(fig,notes):
-    df = Trace(notes['dpath'], 
-               notes['nrefs'], 
-               notes['nexps']).process(notes['refbeads'], 
-                                       notes['expbeads'],
-                                       idxcorr=notes['idxcorr'], 
-                                       pxn=notes['pxn']).df
+def plotzf(fig,df,refbeads,expbeads):
+    
     ax = fig.subplots(ncols=2,sharex=True)
     #zrkeys = [key for key in df.keys() if 'Zref' in key]
-    for i in notes['refbeads']:
+    for i in refbeads:
         ax[0].plot('Time','Zref%s'%i,data=df,alpha=0.6,c='C%s'%i)
-    for i in notes['expbeads']:
+    for i in expbeads:
         ax[1].plot('Time','Zexp%s'%i,data=df,alpha=0.6,c='C%s'%i)
     #df.plot(ax = ax[0],x='Time',y=zrkeys,alpha = 0.6)
     #zekeys = [key for key in df.keys() if 'Zexp' in key]
@@ -150,7 +145,8 @@ class Graphwindow(tk.Frame):
     def makefig(self,frame,row):
         fig = Figure(figsize=(12,4),dpi=100)
         self.fig = fig
-        ax,surfs = plotzf(fig,self.notes)
+        df = processdata(self.notes).df
+        ax,surfs = plotzf(fig,df,self.notes['refbeads'],self.notes['expbeads'])
         self.ax = ax; self.notes['surfs'] = surfs
         # Create the plot canvas in the graph window
         canvas = FigureCanvasTkAgg(fig, master=frame)  # A tk.DrawingArea.
@@ -183,7 +179,8 @@ class Graphwindow(tk.Frame):
         #print(self.notes['refbeads'],self.notes['expbeads'])
         for a in self.ax:
             self.fig.clf()
-        ax,surfs = plotzf(self.fig,self.notes)
+        df = processdata(self.notes).df
+        ax,surfs = plotzf(self.fig,df,self.notes['refbeads'],self.notes['expbeads'])
         self.ax = ax;self.surfs = surfs
         self.canvas.draw()
         
@@ -216,35 +213,40 @@ class Analysiswindow(tk.Frame):
         self.conc = conc
         tk.Button(master, text='Analyze folder',command=self.analyze).grid(row=3,columnspan=2)
         # Work on progressbar for later
-        #prog = tk.Progressbar(master,orient='horizontal',length=100.)
+        prog = Progressbar(master,orient='horizontal',length=100.)
+        prog.grid(row=4)
+        self.prog = prog
     def analyze(self):
         notes = self.notes
-        notes['salt'] = self.tkvar.get()
-        notes['conc'] = float(self.conc.get())
-        initialdir = notes['dpath'].parents[1]
+        notes2 = notes.copy()
+        notes2['salt'] = self.tkvar.get()
+        notes2['conc'] = float(self.conc.get())
+        initialdir = notes2['dpath'].parents[1]
         dir_name = filedialog.askdirectory(parent=self.master,
                                               initialdir=initialdir,
                                               title='Select directory now!')
         if dir_name:
             dir_name2 = dir_name + ' converted'
-            path = Path(dir_name)
             path2 = Path(dir_name2)
             if not path2.exists():
                 path2.mkdir()
-            for p in path.iterdir():
-                trace = Trace(p, 
-                           notes['nrefs'],
-                           notes['nexps'])
-                trace.process(notes['refbeads'],
-                              notes['expbeads'],
-                              idxcorr=notes['idxcorr'], 
-                              pxn=notes['pxn'])
-                trace.surface_correction(notes['surfs'])
+            path = Path(dir_name)
+            files = list(path.iterdir())
+            self.prog['value'] = 0
+            self.prog['maximum'] = len(files)
+            for i,p in enumerate(files):
+                notes2['dpath'] = p
+                trace = processdata(notes2)
+                trace = trace.surface_correction(notes2['surfs'])
                 df = trace.df
-                
                 fname = p.name + '.csv'
                 fpath = path2 / fname
                 df.to_csv(fpath,index=False)
+                self.prog['value'] = i+1
+                self.prog.update()
+def progress(progressbar,curval):
+    progressbar['value'] = curval
+    progressbar.update()
 class Checkbar(tk.Frame):
    def __init__(self, parent=None, picks=[],command = None, side=tk.LEFT, anchor=tk.W):
       tk.Frame.__init__(self, parent)
@@ -265,6 +267,17 @@ def datadir():
     dpath = Path(dirname)
     print(dpath)
     return dpath,root
+
+def processdata(notes):
+    """Takes notes and returns trace class."""
+    trace = Trace(notes['dpath'], 
+                   notes['nrefs'], 
+                   notes['nexps'])
+    trace.process(notes['refbeads'],
+                  notes['expbeads'],
+                  idxcorr=notes['idxcorr'],
+                  pxn=notes['pxn'])
+    return trace
 
 
 if __name__ == '__main__':

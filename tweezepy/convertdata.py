@@ -14,7 +14,9 @@ from scipy.interpolate import UnivariateSpline
 class Trace:
     def __init__(self,path,nrefs,nexps):
         """
-        Reads in data into a panda dataframe.
+        Reads txt file and creates a dataframe that can be modified.
+        Assumes that the columns are in the labview data output format
+        [Time,MP,MR,(Xref,Yref,Zref)*#ref,(Xexp,Yexp,Zexp)*#exp]
         """
         header = ['Time','MP','MR'] 
         header += ['%sref%s'%(p,bead) for bead in range(nrefs) for p in ('X','Y','Z')] 
@@ -22,7 +24,7 @@ class Trace:
         df = pd.read_csv(path,delimiter='\t',header = None)
         df.columns = header
         df = df[df.Time != 0]
-        df.update(df.Time.sub(df.Time.iloc[0]))
+        #df.update(df.Time.sub(df.Time.iloc[0]))
         #df = df.set_index('Time')
         
         self.df = df
@@ -82,9 +84,11 @@ def find_surface(df):
     return surfs
 class Refidx:
     """
-    This functions creates and stores interpolation functions for each salt 
-    that allows you to calculate the index of refraction between the flow cell 
-    solution and immersion oil. 
+    Takes salt concentration in solution and returns refractive index correction.
+    
+    This functions creates and stores interpolation functions for the refractive
+    index of various salt solutions. It assumes that you are using immersion oil
+    with a refractive index of 1.515. 
     """
     def __init__(self):
         reffolder = Path('Refractive indices')

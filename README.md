@@ -2,7 +2,7 @@
 This is [tweezepy](https://github.com/RoCaerbannog/tweezepy) a package of magnetic tweezer related analysis code for the Saleh lab.
 
 # Installation
-Download files.
+Clone repository onto local machine.
  
 Navigate to directory: 
     

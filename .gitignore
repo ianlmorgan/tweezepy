@@ -8,6 +8,7 @@
 build
 notebooks
 data
+docs
 
 # Other files
 *.pyc
