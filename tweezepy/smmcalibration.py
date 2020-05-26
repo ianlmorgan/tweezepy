@@ -213,8 +213,8 @@ class PSD:
             # Plot the function with best-fit values from the mle fit
             ax.plot('f','yhat',
                      data=self.results,label = 'MLE fit',zorder=1)
-            ax.set_xlabel(r'f [Hz] (s)')
-            ax.set_ylabel(r'PSD [nm$^2$/Hz] (s)')
+            ax.set_xlabel(r'f [Hz]')
+            ax.set_ylabel(r'PSD [nm$^2$/Hz]')
             ax.set_xscale('log')
             ax.set_yscale('log')
             ax.legend()
