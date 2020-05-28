@@ -68,7 +68,7 @@ class AV:
         ax.set_xscale('log')
         ax.set_yscale('log')
         return ax
-    def mlefit(self,fixed_alpha = None,guess = [1.15E-5,0.001]):   
+    def mlefit(self,fixed_alpha = None,guess = [1.15E-5,0.001],**kwargs):   
         """
         Parameters
         ----------
@@ -96,7 +96,8 @@ class AV:
                            self.results.taus,
                            self.results.etas,
                            self.results.oavs,
-                           guess = guess)
+                           guess = guess,
+                           **kwargs)
         self.params = params
         self.se = se
         self.results['yhat'] = func(self.results.taus, *params)
@@ -162,7 +163,7 @@ class PSD:
         ax.set_yscale('log')
         return ax
     
-    def mlefit(self,fixed_alpha = None,guess = [1.15E-5,0.001]):   
+    def mlefit(self,fixed_alpha = None,guess = [1.15E-5,0.001],**kwargs):   
         """
         Parameters
         ----------
@@ -187,7 +188,8 @@ class PSD:
                            self.results.f,
                            self.results.etas,
                            self.results.psd,
-                           guess = guess)
+                           guess = guess,
+                           **kwargs)
         self.params = params
         self.se = se
         self.results['yhat'] = func(self.results.f, *params)
@@ -324,7 +326,7 @@ def negLL(p,func,x,e,y):
     loglikelihood = gamma.logpdf(y,e,scale=yhat/e).sum()
     negloglikelihood = -1 * loglikelihood
     return negloglikelihood 
-def MLEfit(func,x,etas,y,guess = [1.15E-5,0.001]):
+def MLEfit(func,x,etas,y,guess = [1.15E-5,0.001],**kwargs):
     """
     Performs a basic maximum likelihood estimation on xtrace.
     Returns alpha and kappa.
@@ -354,7 +356,7 @@ def MLEfit(func,x,etas,y,guess = [1.15E-5,0.001]):
     popt,pcov = curve_fit(func,x,y,p0 = guess)
     # Minimize the negative log likelihood
     results = minimize(negLL, x0 = popt, args = (func,x,etas,y), 
-                       method = 'Nelder-Mead',options={'disp':True})
+                       method = 'Nelder-Mead',**kwargs)
     params = results['x']
     # Nelder-mead doesn't return errors or a covariance matrix
     # To determine the errors, we have to approximate the hessian
