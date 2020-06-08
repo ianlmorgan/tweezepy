@@ -22,9 +22,12 @@ import pandas as pd
 
 from scipy.optimize import minimize,curve_fit
 from scipy.signal import welch
-from scipy.stats import gamma
+from scipy.stats import gamma,chi2
+from scipy.special import erf
 from statsmodels.tools.numdiff import approx_hess
 from numpy import pi,exp,sin,sinh,cos,cosh
+
+
 
 class AV:
     """
@@ -62,7 +65,13 @@ class AV:
 
         """
         fig,ax = plt.subplots()
-        ax.plot('taus','oavs',data=self.results,marker='o',lw=0)
+        taus = self.results['taus']
+        etas = self.results['etas']
+        oavs = self.results['oavs']
+        #Error bars not implemented before fit
+        #var_l,var_h = confidence_interval(oavs,etas)
+        #ax.errorbar(taus,oavs,yerr=[var_l,var_h],fmt='o')
+        ax.plot(taus,oavs,'o')
         ax.set_xlabel(r'$\tau$ (s)')
         ax.set_ylabel(r'$\sigma^2$ [nm$^2$]')
         ax.set_xscale('log')
@@ -223,7 +232,7 @@ class PSD:
             return ax
         self.plot = plot
         return params,se
-def allanvar(xtrace,freq):
+def allanvar(xtrace,freq,taus = 'octave'):
     """
     Estimate overlapping allan variance 
     Takes an array of numbers and returns the overlapping allan variance.
@@ -249,9 +258,13 @@ def allanvar(xtrace,freq):
     xtrace = np.asarray(xtrace) # convert to numpy array
     dt = 1.0/freq # shutter speed in s tau_s
     N = len(xtrace)
-    # octave sampling break bin sizes, m, into powers of 2^n
-    maxn = int(np.floor(np.log2(N/2.))) # m =< N/2
-    m = np.logspace(0,maxn,maxn+1,base=2,dtype='int')  #bin sizes
+    if taus == 'all':
+        # all-tau sampling not particularly useful but why not?
+        m = np.linspace(1.0,N,N,dtype='int')
+    elif taus == 'octave':
+        # octave sampling break bin sizes, m, into powers of 2^n
+        maxn = int(np.floor(np.log2(N/2.))) # m =< N/2
+        m = np.logspace(0,maxn,maxn+1,base=2,dtype='int')  #bin sizes
     taus = m*dt # tau = m*tau_c
     etas = (N/m-1)/2 # shape factors
     # See eratum for Eq. 18b
@@ -267,8 +280,37 @@ def allanvar(xtrace,freq):
         s = np.sum(v_arr*v_arr)
         oavs[i] = s/(2.*(N-2.*mj+1.)*(mj*dt)**2.)
     return taus,etas,oavs
-
+def psd(xtrace,freq, nperseg = 1024):
+    f, Pxx_den = welch(xtrace, freq, nperseg=nperseg)
+    Pxx_den /= 2
+    b = (2*len(xtrace)/nperseg) - 1
+    etas = np.full_like(f,b)
+    return f,etas,Pxx_den
 def SMMAV(t,a,k):
+    """
+    Modified Eq. 17 from Lansdorp et al. (2012) 
+    for the single-molecule allan variance.
+
+    Parameters
+    ----------
+    t : array
+        taus.
+    a : float
+        alpha/kappa.
+    k : float
+        kappa.
+
+    Returns
+    -------
+    oav : array
+        predicted allan variance.
+
+    """
+    kT = 4.1 # in pN*nm
+    oav = 2.*kT*a/(k*t) * (1 + 2*a*np.exp(-t/a)/t - 
+                           a*np.exp(-2*t/a)/(2*t) - 3*a/(2*t))
+    return oav
+def SMMAV2(t,a,k):
     """
     Eq. 17 from Lansdorp et al. (2012) for the single-molecule allan variance.
 
@@ -326,7 +368,7 @@ def negLL(p,func,x,e,y):
     loglikelihood = gamma.logpdf(y,e,scale=yhat/e).sum()
     negloglikelihood = -1 * loglikelihood
     return negloglikelihood 
-def MLEfit(func,x,etas,y,guess = [1.15E-5,0.001],**kwargs):
+def MLEfit(func,x,e,y,guess = [1.15E-5,0.001],**kwargs):
     """
     Performs a basic maximum likelihood estimation on xtrace.
     Returns alpha and kappa.
@@ -355,13 +397,33 @@ def MLEfit(func,x,etas,y,guess = [1.15E-5,0.001],**kwargs):
     """  
     popt,pcov = curve_fit(func,x,y,p0 = guess)
     # Minimize the negative log likelihood
-    results = minimize(negLL, x0 = popt, args = (func,x,etas,y), 
+    negLL = lambda p: -gamma.logpdf(y,e,scale=func(x,*p)/e).sum()
+    results = minimize(negLL, x0 = popt, 
                        method = 'Nelder-Mead',**kwargs)
     params = results['x']
+    
     # Nelder-mead doesn't return errors or a covariance matrix
-    # To determine the errors, we have to approximate the hessian
-    f = lambda p: negLL(p,func,x,etas,y)
-    hess = approx_hess(params,f)
-    se = np.sqrt(np.diag(np.linalg.inv(hess)))
+    # So, we use nelder-mead to get the parameters
+    # Then, we run BFGS to get the inverted hessian
+    # Use the inverted hessian to calculate the covariance matrix
+    results2 = minimize(negLL,x0=params,method='bfgs')
+    hess_inv = results2.hess_inv
+    # Inverse hessian is approximately to covariance matrix
+    se = np.sqrt(np.diag(hess_inv)) # take square root of diagonals
     return params,se
 
+
+# Confidence Intervals
+ONE_SIGMA_CI = erf(1/np.sqrt(2))
+#    = 0.68268949213708585
+def confidence_interval(oav, eta, ci=ONE_SIGMA_CI):
+    ci_l = min(np.abs(ci), np.abs((ci-1))) / 2
+    ci_h = 1 - ci_l
+
+    # function from scipy, works OK, but scipy is large and slow to build
+    chi2_l = chi2.ppf(ci_l, eta)
+    chi2_h = chi2.ppf(ci_h, eta)
+
+    var_l = eta * oav / chi2_h  # NIST SP1065 eqn (45)
+    var_h = eta * oav / chi2_l
+    return var_l,var_h

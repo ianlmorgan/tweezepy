@@ -5,14 +5,15 @@ Created on Wed May 27 14:59:09 2020
 Author: Ian L. Morgan
 email: ilmorgan@ucsb.edu
 """
-import math
 import numpy as np
+from numba import jit
 
 from tqdm.auto import tqdm
 
+
 if __name__ == '__main__':
     
-    F = 2           # force applied to bead in pN
+    F = .5           # force applied to bead in pN
     Z0 = 1000       # extension of molecule in nm
     
     alpha = 1.5e-5  # dissipation due to viscous drag, in pN s/nm; 
@@ -23,7 +24,7 @@ if __name__ == '__main__':
                     # faster than the downsampling frequency, below        
     freq = 400      # simulated data will be downsampled by averaging to this 
                     # frequency, akin to the camera frame rate   
-    sim_time = 10   # length of simulation, in s
+    sim_time = 30   # length of simulation, in s
     
     num_sims = 1000 # number of simulations to be conducted; the results of 
                     # these will be combined to give estimates of uncertainty 
@@ -40,18 +41,23 @@ if __name__ == '__main__':
     
     X0 = 0 # avg. x-position of bead
     
-    bin_size = math.floor(sim_freq/freq)
-    num_bins = math.floor(trace_length/bin_size)
+    bin_size = int(np.floor(sim_freq/freq))
+    num_bins = int(np.floor(trace_length/bin_size))
     time_ds = np.arange(1,num_bins+1)/freq
-    
-    for n in tqdm(range(num_sims)):
+    @jit(nopython=True)
+    def simulate_trace():
         F_L = np.random.standard_normal(trace_length)
-        xtrace = np.zeros(trace_length)
-        for i in range(trace_length-1):
-            dx =  dt/alpha*(math.sqrt(2*alpha*kT/dt)*F_L[i+1]-kx*(xtrace[i]-X0))
-            xtrace[i+1] = xtrace[i] + dx
+        af = np.sqrt(2*alpha*kT/dt)*F_L
+        xtrace = np.zeros(trace_length) 
+        for i in range(1,trace_length):
+            dx =  dt/alpha*(af[i-1]-kx*(xtrace[i-1]-X0))
+            xtrace[i] = xtrace[i-1] + dx
         xtrace_ds = np.zeros(num_bins)
         for i in range(num_bins):
             xtrace_ds[i] = np.mean(xtrace[(i*bin_size):(i+1)*bin_size])
+        return xtrace_ds    
+   
+    for n in tqdm(range(num_sims)):
+        xtrace_ds = simulate_trace()    
         trace_ds = np.vstack((time_ds,xtrace_ds))
-        np.savetxt("data/simulations/sim%s.csv"%n, trace_ds, delimiter=",")
+        np.savetxt("data/simulations/sim_forces_30s/5e-1/sim%s.csv"%n, trace_ds, delimiter=",")
