@@ -24,6 +24,7 @@ from scipy.optimize import minimize,curve_fit
 from scipy.signal import welch
 from scipy.stats import gamma,chi2
 from scipy.special import erf
+from iminuit import Minuit
 from statsmodels.tools.numdiff import approx_hess
 from numpy import pi,exp,sin,sinh,cos,cosh
 
@@ -101,15 +102,15 @@ class AV:
             assert type(fixed_alpha) is float, "fixed_alpha must be a float: %r" %fixed_alpha
             guess = [.001]
             func = lambda t,k: SMMAV(t,fixed_alpha,k)
-        params,se = MLEfit(func,
-                           self.results.taus,
-                           self.results.etas,
-                           self.results.oavs,
-                           guess = guess,
-                           **kwargs)
+        params, se = MLEfit(func,
+                            self.results.taus,
+                            self.results.etas,
+                            self.results.oavs,
+                            guess = guess,
+                            **kwargs)
         self.params = params
         self.se = se
-        self.results['yhat'] = func(self.results.taus, *params)
+        self.results['yhat'] = func(self.results.taus, *self.params)
         scale = self.results.yhat/self.results.etas
         self.results['ostd'] = gamma.std(self.results.oavs,
                                          self.results.etas,
@@ -139,7 +140,7 @@ class AV:
             ax.legend()
             return ax
         self.plot = plot
-        return params,se
+        return self.params,self.se
 class PSD:
     def __init__(self, trace, freq, nperseg = 1024):
         self.trace = trace
@@ -397,19 +398,17 @@ def MLEfit(func,x,e,y,guess = [1.15E-5,0.001],**kwargs):
     """  
     popt,pcov = curve_fit(func,x,y,p0 = guess)
     # Minimize the negative log likelihood
-    negLL = lambda p: -gamma.logpdf(y,e,scale=func(x,*p)/e).sum()
-    results = minimize(negLL, x0 = popt, 
-                       method = 'Nelder-Mead',**kwargs)
-    params = results['x']
     
-    # Nelder-mead doesn't return errors or a covariance matrix
-    # So, we use nelder-mead to get the parameters
-    # Then, we run BFGS to get the inverted hessian
-    # Use the inverted hessian to calculate the covariance matrix
-    results2 = minimize(negLL,x0=params,method='bfgs')
-    hess_inv = results2.hess_inv
-    # Inverse hessian is approximately to covariance matrix
-    se = np.sqrt(np.diag(hess_inv)) # take square root of diagonals
+    negLL = lambda a,k: -gamma.logpdf(y,e,scale=func(x,a,k)/e).sum()
+    m = Minuit(negLL,
+               pedantic = False,
+               a=popt[0],k=popt[1],
+               error_a=0.1*popt[0], error_k=0.1*popt[1],
+               errordef = 0.5)
+    m.migrad()
+    params = m.np_values()
+    se = m.np_errors()
+    print(m.get_param_states())
     return params,se
 
 
