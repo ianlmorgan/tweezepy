@@ -20,12 +20,11 @@ import numpy as np
 import pandas as pd
 
 
-from scipy.optimize import minimize,curve_fit
+from scipy.optimize import curve_fit
 from scipy.signal import welch
 from scipy.stats import gamma,chi2
 from scipy.special import erf
 from iminuit import Minuit
-from statsmodels.tools.numdiff import approx_hess
 from numpy import pi,exp,sin,sinh,cos,cosh
 
 
@@ -67,7 +66,6 @@ class AV:
         """
         fig,ax = plt.subplots()
         taus = self.results['taus']
-        etas = self.results['etas']
         oavs = self.results['oavs']
         #Error bars not implemented before fit
         #var_l,var_h = confidence_interval(oavs,etas)
@@ -284,13 +282,17 @@ def allanvar(xtrace,freq,taus = 'octave'):
 def psd(xtrace,freq, nperseg = 1024):
     f, Pxx_den = welch(xtrace, freq, nperseg=nperseg)
     Pxx_den /= 2
-    b = (2*len(xtrace)/nperseg) - 1
+    b = 2*np.floor(len(xtrace)/nperseg) - 1
     etas = np.full_like(f,b)
     return f,etas,Pxx_den
 def SMMAV(t,a,k):
     """
     Modified Eq. 17 from Lansdorp et al. (2012) 
     for the single-molecule allan variance.
+    ## FIX-ME
+    ## Still unclear whether I want to use this or the other equation
+    ## The issue is that minimization can be hard with parameters that are 
+    ## different by several orders of magnitude.
 
     Parameters
     ----------
@@ -416,6 +418,7 @@ def MLEfit(func,x,e,y,guess = [1.15E-5,0.001],**kwargs):
 ONE_SIGMA_CI = erf(1/np.sqrt(2))
 #    = 0.68268949213708585
 def confidence_interval(oav, eta, ci=ONE_SIGMA_CI):
+    ## Still a work in progress.
     ci_l = min(np.abs(ci), np.abs((ci-1))) / 2
     ci_h = 1 - ci_l
 

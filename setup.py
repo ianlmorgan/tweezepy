@@ -10,8 +10,8 @@ from setuptools import setup
 
 setup(
    name='tweezepy',
-   version='0.1.0',
-   author='An Awesome Coder',
+   version='0.1.1',
+   author='Ian Morgan',
    author_email='ilmorgan@ucsb.edu',
    packages=['tweezepy'],
    license='LICENSE.txt',
@@ -19,6 +19,8 @@ setup(
    long_description=open('README.md').read(),
    install_requires=[
        "numpy",
-       "pandas"
+       "pandas",
+       "scipy",
+       "iminuit"
        ],
 )
