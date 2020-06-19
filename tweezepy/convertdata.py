@@ -21,6 +21,8 @@ class Trace:
         header = ['Time','MP','MR'] 
         header += ['%sref%s'%(p,bead) for bead in range(nrefs) for p in ('X','Y','Z')] 
         header += ['%sexp%s'%(p,bead) for bead in range(nexps) for p in ('X','Y','Z')]
+        self.xr,self.yr,self.zr = list(map(list,zip(*[['Xref%s'%bead,'Yref%s'%bead,'Zref%s'%bead] for bead in range(nrefs)])))
+        self.xe,self.ye,self.ze = list(map(list,zip(*[['Xexp%s'%bead,'Yexp%s'%bead,'Zexp%s'%bead] for bead in range(nexps)])))
         df = pd.read_csv(path,delimiter='\t',header = None)
         df.columns = header
         df = df[df.Time != 0]
