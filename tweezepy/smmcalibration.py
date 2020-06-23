@@ -280,11 +280,13 @@ def allanvar(xtrace,freq,taus = 'octave'):
         oavs[i] = s/(2.*(N-2.*mj+1.)*(mj*dt)**2.)
     return taus,etas,oavs
 def psd(xtrace,freq, nperseg = 1024):
-    f, Pxx_den = welch(xtrace, freq, nperseg=nperseg)
-    Pxx_den /= 2
+    """Takes 1-D array and returns frequency,etas, and psd."""
+    f, dens = welch(xtrace, freq, nperseg=nperseg,return_onesided=False)
+    msk = f>0
+    f, dens = f[msk], dens[msk]
     b = 2*np.floor(len(xtrace)/nperseg) - 1
     etas = np.full_like(f,b)
-    return f,etas,Pxx_den
+    return f,etas,dens
 def SMMAV(t,a,k):
     """
     Modified Eq. 17 from Lansdorp et al. (2012) 
