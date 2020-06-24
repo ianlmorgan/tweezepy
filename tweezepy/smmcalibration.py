@@ -15,18 +15,15 @@ email: ilmorgan@ucsb.edu
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import autograd.numpy as np 
 
 import pandas as pd
 
-
-from scipy.optimize import curve_fit
+from autograd import hessian
+from autograd.scipy.stats import gamma
+from scipy.optimize import curve_fit,minimize
 from scipy.signal import welch
-from scipy.stats import gamma,chi2
-from scipy.special import erf
-from iminuit import Minuit
-from numpy import pi,exp,sin,sinh,cos,cosh
-
+from scipy import stats
 
 
 class AV:
@@ -140,19 +137,19 @@ class AV:
         self.plot = plot
         return self.params,self.se
 class PSD:
-    def __init__(self, trace, freq, nperseg = 1024):
+    def __init__(self, trace, freq,**kwargs):
         self.trace = trace
         self.freq = freq
          
-        f, Pxx_den = welch(trace, freq, nperseg=nperseg)
+        #f, Pxx_den = welch(trace, freq, nperseg=1024)
         # By default, scipy returns the one-sided PSD
         # Lansdorp et al. (2012) uses the positive part of the two-sided PSD
         # Not going to lie, figuring this out drove me crazy
         # Divide by 2 to get the positive part of the two-sided PSD
-        Pxx_den /= 2
-        b = (2*len(trace)/nperseg) - 1
-        etas = np.full_like(f,b)
-        self.results = pd.DataFrame({'f':f,'psd': Pxx_den,'etas':etas})
+        f, etas, dens = psd(trace,freq,**kwargs)
+        #Pxx_den /= 2
+        stds = stats.gamma.std(etas,scale = dens/etas)
+        self.results = pd.DataFrame({'f':f,'etas':etas,'psd': dens,'psd_stds':stds})
     def plot(self):
         """
         Plots the overlapping allan variance on a loglog plot.
@@ -164,7 +161,7 @@ class PSD:
 
         """
         fig,ax = plt.subplots()
-        ax.plot('f','psd',data=self.results)
+        ax.errorbar('f','psd',yerr='psd_stds',data=self.results)
         ax.set_xlabel(r'f [Hz]')
         ax.set_ylabel(r'PSD [nm$^2$/Hz]')
         ax.set_xscale('log')
@@ -201,10 +198,10 @@ class PSD:
         self.params = params
         self.se = se
         self.results['yhat'] = func(self.results.f, *params)
-        scale = self.results.yhat/self.results.etas
-        self.results['psd_std'] = gamma.std(self.results.psd,
-                                            self.results.etas,
-                                            scale=scale)
+        #scale = self.results.yhat/self.results.etas
+        #self.results['psd_std'] = gamma.std(self.results.psd,
+        #                                    self.results.etas,
+        #                                    scale=scale)
             
         def plot():
             """
@@ -218,7 +215,7 @@ class PSD:
             """
             fig, ax = plt.subplots()
             # Plot the points with errorbars
-            ax.errorbar('f','psd',yerr='psd_std',
+            ax.errorbar('f','psd',yerr='psd_stds',
                          data=self.results,fmt = 'o',label = None,zorder=0)
             # Plot the function with best-fit values from the mle fit
             ax.plot('f','yhat',
@@ -336,8 +333,8 @@ def SMMAV2(t,a,k):
     """
     kT = 4.1 # in pN*nm
     oav = 2.*kT*a/(k**2.*t) * (1. +
-                               2.*a/(k*t) * exp(-k*t/a) -
-                               a/(2.*k*t) * exp(-2.*k*t/a) -
+                               2.*a/(k*t) * np.exp(-k*t/a) -
+                               a/(2.*k*t) * np.exp(-2.*k*t/a) -
                                3*a/(2.*k*t)
                               )
     return oav
@@ -363,15 +360,17 @@ def SMMPSD(f,fs,a,k):
 
     """
     kT = 4.1 # in pN*nm
-    PSD = 2.*kT*a/k**3. * (k + (2.*a*fs*sin(pi*f/fs)**2. * sinh(k/(a*fs))) / (cos(2.*pi*f/fs) - 
-                                                                              cosh(k/(a*fs)))
+    PSD = 2.*kT*a/k**3. * (k + 
+                           (2.*a*fs*np.sin(np.pi*f/fs)**2. * np.sinh(k/(a*fs))) / (np.cos(2.*np.pi*f/fs) - 
+                                                                                   np.cosh(k/(a*fs)))
                           )
     return PSD
 def negLL(p,func,x,e,y):
     """Takes params, taus,etas, and oavs and returns the negative log likelihood. """
     yhat = func(x,*p)
-    loglikelihood = gamma.logpdf(y,e,scale=yhat/e).sum()
-    negloglikelihood = -1 * loglikelihood
+    scale = yhat/e
+    likelihood = gamma.pdf(y/scale,e)/scale
+    negloglikelihood = -np.sum(np.log(likelihood))
     return negloglikelihood 
 def MLEfit(func,x,e,y,guess = [1.15E-5,0.001],**kwargs):
     """
@@ -400,34 +399,17 @@ def MLEfit(func,x,e,y,guess = [1.15E-5,0.001],**kwargs):
     -----
     Need to update so it does fixed alpha.
     """  
-    popt,pcov = curve_fit(func,x,y,p0 = guess)
+    x = np.asarray(x)
+    e = np.asarray(e)
+    y = np.asarray(y)
+
+    popt,_ = curve_fit(func,x,y,p0 = guess)
     # Minimize the negative log likelihood
-    
-    negLL = lambda a,k: -gamma.logpdf(y,e,scale=func(x,a,k)/e).sum()
-    m = Minuit(negLL,
-               pedantic = False,
-               a=popt[0],k=popt[1],
-               error_a=0.1*popt[0], error_k=0.1*popt[1],
-               errordef = 0.5)
-    m.migrad()
-    params = m.np_values()
-    se = m.np_errors()
-    print(m.get_param_states())
-    return params,se
+    _negLL = lambda p: negLL(p,func,x,e,y)
+    hess = hessian(_negLL)
+    fit = minimize(_negLL,x0=popt,method='Nelder-Mead')
+    pars = fit['x']
+    var = np.linalg.inv(hess(fit['x']))
+    errors = np.sqrt(np.diag(var))
+    return pars,errors
 
-
-# Confidence Intervals
-ONE_SIGMA_CI = erf(1/np.sqrt(2))
-#    = 0.68268949213708585
-def confidence_interval(oav, eta, ci=ONE_SIGMA_CI):
-    ## Still a work in progress.
-    ci_l = min(np.abs(ci), np.abs((ci-1))) / 2
-    ci_h = 1 - ci_l
-
-    # function from scipy, works OK, but scipy is large and slow to build
-    chi2_l = chi2.ppf(ci_l, eta)
-    chi2_h = chi2.ppf(ci_h, eta)
-
-    var_l = eta * oav / chi2_h  # NIST SP1065 eqn (45)
-    var_h = eta * oav / chi2_l
-    return var_l,var_h
