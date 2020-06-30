@@ -23,7 +23,7 @@ setuptools.setup(
    license='LICENSE.txt',
    description='Single-molecule pulling analysis package',
    long_description_content_type='text/markdown',
-   url='https://github.com/pypa/tweezepy,
+   url='https://github.com/pypa/tweezepy',
    install_requires = ['autograd'],
    project_urls={  # Optional
       'Source': 'https://github.com/ianlmorgan/tweezepy/',
