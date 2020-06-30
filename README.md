@@ -1,5 +1,5 @@
 # tweezepy
-This is [tweezepy](https://github.com/ianlmorgan/tweezepy) a package of single-molecule pulling experiment related analysis code.
+This is [tweezepy](https://github.com/ianlmorgan/tweezepy), a package of single-molecule pulling experiment related analysis code.
 
 # Installation
 Clone repository onto local machine.
