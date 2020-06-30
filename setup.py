@@ -21,6 +21,6 @@ setup(
        "numpy",
        "pandas",
        "scipy",
-       "iminuit"
+       "autograd"
        ],
 )
