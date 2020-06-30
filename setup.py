@@ -6,22 +6,15 @@ Author: Ian L. Morgan
 email: ilmorgan@ucsb.edu
 """
 
-from setuptools import setup
+import setuptools
 
-setup(
+setuptools.setup(
    name='tweezepy',
    version='0.1.2',
    author='Ian Morgan',
    author_email='ilmorgan@ucsb.edu',
-   packages=['tweezepy'],
+   packages=setuptools.find_packages(),
    license='LICENSE.txt',
-   description='Saleh lab tweezer code',
-   long_description=open('README.md').read(),
-   install_requires=[
-       "matplotlib",
-       "numpy",
-       "pandas",
-       "scipy",
-       "autograd"
-       ],
+   description='Single-molecule pulling analysis',
+   long_description=open('README.md').read()
 )
