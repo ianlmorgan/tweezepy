@@ -21,7 +21,11 @@ setuptools.setup(
    author_email='ilmorgan@ucsb.edu',
    packages=setuptools.find_packages(),
    license='LICENSE.txt',
-   description='Single-molecule pulling analysis',
-   long_description=open('README.md').read(),
-   install_requires = ['autograd']
+   description='Single-molecule pulling analysis package',
+   long_description_content_type='text/markdown',
+   url='https://github.com/pypa/tweezepy,
+   install_requires = ['autograd'],
+   project_urls={  # Optional
+      'Source': 'https://github.com/ianlmorgan/tweezepy/',
+    },
 )
