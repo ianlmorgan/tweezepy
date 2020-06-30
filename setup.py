@@ -18,6 +18,7 @@ setup(
    description='Saleh lab tweezer code',
    long_description=open('README.md').read(),
    install_requires=[
+       "matplotlib",
        "numpy",
        "pandas",
        "scipy",
