@@ -22,5 +22,6 @@ setuptools.setup(
    packages=setuptools.find_packages(),
    license='LICENSE.txt',
    description='Single-molecule pulling analysis',
-   long_description=open('README.md').read()
+   long_description=open('README.md').read(),
+   install_requires = ['autograd']
 )
