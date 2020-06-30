@@ -10,7 +10,7 @@ from setuptools import setup
 
 setup(
    name='tweezepy',
-   version='0.1.1',
+   version='0.1.2',
    author='Ian Morgan',
    author_email='ilmorgan@ucsb.edu',
    packages=['tweezepy'],
