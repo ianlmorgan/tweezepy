@@ -25,7 +25,8 @@ jobs:
     - name: Install tweezepy
       run: >-
         python -m
-        setup.py install
+        pip install
+        tweezepy
         --user
     - name: Build a binary wheel and a source tarball
       run: >-
