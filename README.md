@@ -1,5 +1,5 @@
 # tweezepy
-This is [tweezepy](https://github.com/RoCaerbannog/tweezepy) a package of magnetic tweezer related analysis code for the Saleh lab.
+This is [tweezepy](https://github.com/RoCaerbannog/tweezepy) a package of single-molecule pulling experiment related analysis code.
 
 # Installation
 Clone repository onto local machine.
