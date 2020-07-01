@@ -19,18 +19,33 @@ The `tweezepy` package includes the following modules:
 * 'smmcalibration' - tools to determine force of probe trajectories by calculating and performing maximum likelihood estimation fits to power spectral density and allan variance
 
 # Example use:
+Simulate data:
+```python
+>>> import matplotlib.pyplot as plt
+>>> from tweezepy.simulations import downsampled_trace
+>>> alpha,kappa,fsample,N = 1e-5,.001,400,10240
+>>> xtrace = downsampled_trace(alpha,kappa,fsample,N)
+>>> plt.plot(xtrace)
+>>> plt.show()
+```
+<img src="examples/example_trace.png" width=600>
 
+Power spectral density:
 ```python
 >>> from tweezepy.smmcalibration import PSD
 >>> psd = PSD(xtrace,fsample)
+>>> pars,errs,covs = psd.mlefit()
 >>> psd.plot()
 ```
+
 <img src="examples/example1.png" width="600">
 
+Allan variance:
 ```python
 >>> from tweezepy.smmcalibration import AV
->>> psd = PSD(xtrace,fsample)
->>> psd.plot()
+>>> av = AV(xtrace,fsample)
+>>> pars,errs,covs = av.mlefit()
+>>> av.plot()
 ```
 <img src="examples/example2.png" width="600">
 

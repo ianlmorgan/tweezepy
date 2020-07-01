@@ -284,4 +284,3 @@ def MLEfit(func,x,e,y,guess = None,**kwargs):
     var = np.linalg.inv(hess(fit['x']))
     errors = np.sqrt(np.diag(var))
     return pars,errors,var
-
