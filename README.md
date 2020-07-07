@@ -16,7 +16,8 @@ Navigate to directory:
     
 # Contents
 The `tweezepy` package includes the following modules:
-* 'smmcalibration' - tools to determine force of probe trajectories by calculating and performing maximum likelihood estimation fits to power spectral density and allan variance
+* 'smmcalibration' - tool to determine force of probe trajectories by calculating and performing maximum likelihood estimation fits to power spectral density and allan variance
+* 'simulations' - tool to simulate single-molecule probe trajectories
 
 # Example use:
 Simulate data:

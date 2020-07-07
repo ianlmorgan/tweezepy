@@ -26,13 +26,10 @@ from scipy.signal import welch
 from scipy import stats
 
 class calibration:
-    def __init__(self, trace, fsample, calibfunc,**kwargs):
+    def __init__(self, trace, fsample):
         self.trace = trace
         self.fsample = fsample
-        x,n,y = calibfunc(trace,fsample,**kwargs)
-        yerr = stats.gamma.std(n,scale = y/n)
-        self.results = pd.DataFrame({'x':x,'n':n,'y':y,'yerr':yerr})
-        
+    
     def plot(self, ax = None,**kwargs):
         if ax == None:
             fig,ax = plt.subplots()
@@ -51,7 +48,7 @@ class calibration:
         results = self.results
         params, se, cov = MLEfit(func,
                                  results.x,
-                                 results.n,
+                                 results.shape,
                                  results.y,
                                  **kwargs)
         self.params = params
@@ -62,7 +59,10 @@ class calibration:
     
 class AV(calibration):
     def __init__(self, trace, fsample,**kwargs):
-        calibration.__init__(self, trace, fsample, allanvar, **kwargs)
+        calibration.__init__(self, trace, fsample)
+        tau,shape,avar = oavar(trace, fsample,**kwargs)
+        yerr = stats.gamma.std(shape,scale = avar/shapes)
+        self.results = pd.DataFrame({'x':tau,'shape':shape,'y':avar,'yerr':yerr})
     def plot(self,**kwargs):
         ax = calibration.plot(self,**kwargs)
         ax.set_xlabel(r'$\tau$ (s)')
@@ -74,8 +74,20 @@ class AV(calibration):
         return calibration.mlefit(self, fitfunc, **kwargs)
 
 class PSD(calibration):
-    def __init__(self, trace, fsample,**kwargs):
-        calibration.__init__(self, trace, fsample, psd, **kwargs)
+    def __init__(self, trace, fsample,nperseg=None,**kwargs):
+        calibration.__init__(self, trace, fsample)
+        N = len(trace)
+        if nperseg is None:
+            nperseg = N//27
+        f, dens = welch(xtrace, freq, 
+                        nperseg=nperseg,return_onesided=True,
+                        **kwargs)
+        msk = f>0
+        f, dens = f[msk], dens[msk]
+        b = 2*N//nperseg - 1
+        shape = np.full_like(f,b)
+        yerr = stats.gamma.std(shape,scale = dens/shape)
+        self.results = pd.DataFrame({'x':f,'shape':shape,'y':dens,'yerr':yerr})
     def plot(self,**kwargs):
         ax = calibration.plot(self,**kwargs)
         ax.set_xlabel(r'f [Hz]')
@@ -89,11 +101,34 @@ class PSD(calibration):
         mlefunc = lambda x,a,k: fitfunc(x,self.fsample,a,k)
         return calibration.mlefit(self, mlefunc, **kwargs)
         
-def allanvar(xtrace,freq,taus = 'octave'):
+def calc_avar(phase,rate,mj,stride = 1):
+    """Eq. 18b in erratum of Lansdorp et al. (2012)"""
+    stride = int(stride)
+    d2 = phase[2 * mj:]
+    d1 = phase[1 * mj:]
+    d0 = phase
+    # n = N - 2*m + 1
+    # this handles all tau or octave
+    n = min(len(d0), len(d1), len(d2))
+    if n == 0:
+        RuntimeWarning("Data array length is too small: %i" % len(phase))
+        n = 1
+    v_arr = d2[:n] - 2 * d1[:n] + d0[:n]
+    s = np.sum(v_arr * v_arr)
+    var =  s/(2.*n*(mj/rate)**2.)
+    return var
+
+def oavar(xtrace,freq,taus = 'octave'):
     """
     Estimate overlapping allan variance 
     Takes an array of numbers and returns the overlapping allan variance.
     Returns the taus, etas, and oavs.
+
+    .. math::
+        \\sigma^2_(m) = { 1 \\over 2 (m \\tau_c )^2 (N-2m+1) }
+        \\sum_{n=1}^{N-2m+1} ( {z}_{k+2m} - 2z_{k+m} + z_{k} )^2\\
+        z_j = \\tau_c \\sum_{i=1}^{j-1}x_i
+        
 
     Parameters
     ----------
@@ -105,15 +140,14 @@ def allanvar(xtrace,freq,taus = 'octave'):
     Returns
     -------
     taus : array
-        Taus.
-    etas : array
-        Etas.
+        taus.
+    shapes : array
+        shapes.
     oavs : array
         Overlapping allan variance.
 
     """
     xtrace = np.asarray(xtrace) # convert to numpy array
-    dt = 1.0/freq # shutter speed in s tau_s
     N = len(xtrace)
     if taus == 'all':
         # all-tau sampling not particularly useful but why not?
@@ -122,23 +156,16 @@ def allanvar(xtrace,freq,taus = 'octave'):
         # octave sampling break bin sizes, m, into powers of 2^n
         maxn = int(np.floor(np.log2(N/2.))) # m =< N/2
         m = np.logspace(0,maxn,maxn+1,base=2,dtype='int')  #bin sizes
-    taus = m*dt # tau = m*tau_c
-    etas = np.floor(N/m-1)/2 # shape factors
-    # See eratum for Eq. 18b
-    phasedata = np.cumsum(xtrace) * dt # convert frequency data to phase data
+    taus = m/freq # tau = m*tau_c
+    shapes = (N/m-1)//2 # shape factors
+    # Calculate phasedata from Eq. 18b (in erratum)
+    phasedata = np.cumsum(xtrace)/freq  # convert frequency data to phase data
     phasedata = np.insert(phasedata, 0, 0) # phase data should start at 0
-    oavs = np.empty_like(taus) # creates array with the same shape as taus
-    # Calculate OAV as in Eq. 18a (in erratum)
-    for i,mj in enumerate(m):
-        # calculate overlapping allan variance for each m
-        d2,d1,d0 = phasedata[2*mj:],phasedata[mj:],phasedata[:]
-        n = min(len(d2),len(d1),len(d0))
-        v_arr = d2[:n]-2.*d1[:n]+d0[:n]
-        s = np.sum(v_arr*v_arr)
-        oavs[i] = s/(2.*(N-2.*mj+1.)*(mj*dt)**2.)
-    return taus,etas,oavs
+    # Calculate oav from Eq. 18a (in erratum)
+    oavs = np.array([calc_avar(phasedata,freq,mj) for mj in m])
+    return taus,shapes,oavs
 def psd(xtrace,freq,nperseg = None,return_onesided=False,**kwargs):
-    """Takes 1-D array and returns frequency,etas, and psd."""
+    """Takes 1-D array and returns frequency, etas, and psd."""
     N = len(xtrace)
     if nperseg is None:
         nperseg = N//27
