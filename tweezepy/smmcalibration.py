@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-The allanvar module.
+The smmcalibration module.
 
 Example usage:
-    from tweezepy.allanvar import AV
-    trace = np.arange(0,5,0.1)
-    av = AV(trace,0.1)
+    from tweezepy.simulations import simulate_trace
+    from tweezepy.smmcalibration import AV
+    trace = simulate_trace()
+    av = AV(trace,100)
     av.plot()
     
 Created on Mon May  4 11:51:23 2020
@@ -58,11 +59,13 @@ class calibration:
         return params,se,cov
     
 class AV(calibration):
-    def __init__(self, trace, fsample,**kwargs):
+    def __init__(self, trace, fsample,taus = None,**kwargs):
         calibration.__init__(self, trace, fsample)
-        tau,shape,avar = oavar(trace, fsample,**kwargs)
-        yerr = stats.gamma.std(shape,scale = avar/shapes)
-        self.results = pd.DataFrame({'x':tau,'shape':shape,'y':avar,'yerr':yerr})
+        if taus is None:
+            taus = 'octave'
+        tau,shapes,oavs = oavar(trace, fsample,taus = taus, **kwargs)
+        yerr = stats.gamma.std(shapes,scale = oavs/shapes)
+        self.results = pd.DataFrame({'x':tau,'shape':shapes,'y':oavs,'yerr':yerr})
     def plot(self,**kwargs):
         ax = calibration.plot(self,**kwargs)
         ax.set_xlabel(r'$\tau$ (s)')
@@ -80,7 +83,7 @@ class PSD(calibration):
         if nperseg is None:
             nperseg = N//27
         f, dens = welch(xtrace, freq, 
-                        nperseg=nperseg,return_onesided=True,
+                        nperseg=nperseg,return_onesided=False,
                         **kwargs)
         msk = f>0
         f, dens = f[msk], dens[msk]
@@ -120,8 +123,8 @@ def calc_avar(phase,rate,mj,stride = 1):
 
 def oavar(xtrace,freq,taus = 'octave'):
     """
-    Estimate overlapping allan variance 
-    Takes an array of numbers and returns the overlapping allan variance.
+    Calculate overlapping allan variance 
+    Takes an array of probe positions.
     Returns the taus, etas, and oavs.
 
     .. math::
