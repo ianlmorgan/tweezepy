@@ -2,13 +2,14 @@
 This is [tweezepy](https://github.com/ianlmorgan/tweezepy), a package of single-molecule pulling experiment related analysis code.
 
 # How to install
-Using pip:
+The simplest method of installing the `tweezepy` package is via the [Python Package Index](https://packaging.python.org/glossary/#term-python-package-index-pypi) (PyPI). To install from PyPI, you will need to be able to run python from the command line and make sure you have [pip](https://packaging.python.org/key_projects/#pip) available.
+
+With pip:
 
     pip install tweezepy
-Using setuptools:
+An alternative method to install `tweezepy` is with setuptools.  Clone the repository onto a local machine, then navigate to the directory.
 
-Clone repository onto local machine. 
-Navigate to directory: 
+Using setuptools:
     
     cd path/to/tweezepy
 

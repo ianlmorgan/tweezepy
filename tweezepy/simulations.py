@@ -1,8 +1,10 @@
 import numpy as np
 from numba import jit
 @jit(nopython=True) # speeds up certain types of code
-def simulate_trace(alpha = 1e-5,kappa = .002,fsim = 100,sim_points = 10240):
+def simulate_trace(alpha = 1e-5,kappa = .001,fsim = 400,sim_points = 10240):
     """Takes parameters and gives a simulated probe trajectory."""
+    if fsim < kappa/alpha:
+        raise ValueError(r'The simulation frequency must be larger than kappa/alpha.')
     dt = 1/fsim # time step between collecting probe position
     kT = 4.1    # thermal energy, in pN nm (approx. 4.1 at room temp.)
     F_L = np.random.standard_normal(sim_points) # Random Langevin force
