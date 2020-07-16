@@ -35,7 +35,7 @@ class calibration:
         if ax == None:
             fig,ax = plt.subplots()
         ax.errorbar('x','y',yerr='yerr',data=self.results,
-                    fmt = 'o', **kwargs,zorder = 0)
+                    fmt = 'o', zorder = 0, **kwargs)
         if 'yfit' in self.results:
             ax.plot('x','yfit',data=self.results,lw = 2, label='', zorder = 1)
         ax.set_xscale('log')
@@ -48,9 +48,9 @@ class calibration:
             np.seterr('warn')
         results = self.results
         params, se, cov = MLEfit(func,
-                                 results.x,
-                                 results.shape,
-                                 results.y,
+                                 results['x'],
+                                 results['shapes'],
+                                 results['y'],
                                  **kwargs)
         self.params = params
         self.se = se
@@ -59,13 +59,13 @@ class calibration:
         return params,se,cov
     
 class AV(calibration):
-    def __init__(self, trace, fsample,taus = None,**kwargs):
+    def __init__(self, trace, fsample,taus = None):
         calibration.__init__(self, trace, fsample)
         if taus is None:
             taus = 'octave'
-        tau,shapes,oavs = oavar(trace, fsample,taus = taus, **kwargs)
-        yerr = stats.gamma.std(shapes,scale = oavs/shapes)
-        self.results = pd.DataFrame({'x':tau,'shape':shapes,'y':oavs,'yerr':yerr})
+        taus,shapes,oavs = oavar(trace, fsample, taus = taus)
+        yerr = stats.gamma.std(shapes, scale = oavs/shapes)
+        self.results = pd.DataFrame({'x':taus,'shapes':shapes,'y':oavs,'yerr':yerr})
     def plot(self,**kwargs):
         ax = calibration.plot(self,**kwargs)
         ax.set_xlabel(r'$\tau$ (s)')
@@ -79,18 +79,9 @@ class AV(calibration):
 class PSD(calibration):
     def __init__(self, trace, fsample,nperseg=None,**kwargs):
         calibration.__init__(self, trace, fsample)
-        N = len(trace)
-        if nperseg is None:
-            nperseg = N//27
-        f, dens = welch(xtrace, freq, 
-                        nperseg=nperseg,return_onesided=False,
-                        **kwargs)
-        msk = f>0
-        f, dens = f[msk], dens[msk]
-        b = 2*N//nperseg - 1
-        shape = np.full_like(f,b)
-        yerr = stats.gamma.std(shape,scale = dens/shape)
-        self.results = pd.DataFrame({'x':f,'shape':shape,'y':dens,'yerr':yerr})
+        f, shapes, dens = psd(trace, fsample, nperseg=nperseg)
+        yerr = stats.gamma.std(shapes,scale = dens/shapes)
+        self.results = pd.DataFrame({'x':f,'shapes':shapes,'y':dens,'yerr':yerr})
     def plot(self,**kwargs):
         ax = calibration.plot(self,**kwargs)
         ax.set_xlabel(r'f [Hz]')
@@ -144,7 +135,7 @@ def oavar(xtrace,freq,taus = 'octave'):
     -------
     taus : array
         taus.
-    shapes : array
+    shape : array
         shapes.
     oavs : array
         Overlapping allan variance.
@@ -167,17 +158,17 @@ def oavar(xtrace,freq,taus = 'octave'):
     # Calculate oav from Eq. 18a (in erratum)
     oavs = np.array([calc_avar(phasedata,freq,mj) for mj in m])
     return taus,shapes,oavs
-def psd(xtrace,freq,nperseg = None,return_onesided=False,**kwargs):
+def psd(trace,fsample,nperseg = None):
     """Takes 1-D array and returns frequency, etas, and psd."""
-    N = len(xtrace)
+    N = len(trace)
     if nperseg is None:
         nperseg = N//27
-    f, dens = welch(xtrace, freq, nperseg=nperseg,return_onesided=return_onesided,**kwargs)
+    f, dens = welch(trace, fsample, nperseg=nperseg,return_onesided=False)
     msk = f>0
     f, dens = f[msk], dens[msk]
     b = 2*N//nperseg - 1
-    etas = np.full_like(f,b)
-    return f,etas,dens
+    shapes = np.full_like(f,b)
+    return f,shapes,dens
 def SMMAV(t,a,k):
     """
     Modified Eq. 17 from Lansdorp et al. (2012) 
