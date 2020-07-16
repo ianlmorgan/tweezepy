@@ -16,7 +16,7 @@ long_description = (here / 'README.md').read_text(encoding='utf-8')
 # This call to setup() does all the work
 setuptools.setup(
    name='tweezepy',
-   version='0.1.6',
+   version='0.1.7',
    author='Ian Morgan',
    author_email='ilmorgan@ucsb.edu',
    packages=setuptools.find_packages(),
