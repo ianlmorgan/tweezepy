@@ -1,6 +1,6 @@
 # Spyder files
 .spyproject
-
+.vscode
 # Python egg metadata, regenerated from source files by setuptools
 *.egg-info
 
@@ -10,7 +10,7 @@ build
 dist
 notebooks
 data
-docs
+tweezepy-paper
 # Don't need ipython checkpoint
 .ipynb_checkpoints
 
