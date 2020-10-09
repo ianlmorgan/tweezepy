@@ -5,7 +5,8 @@ tweezepy
 single-molecule video-tracking experiments. These pages will
 show you how to use it. 
 
-You can learn more about how to use *tweezepy* from the tutorials listed below.
+You can learn more about how to use **tweezepy** from the tutorials listed below.
+
 .. toctree::
    :maxdepth: 1
    :caption: Tutorials
