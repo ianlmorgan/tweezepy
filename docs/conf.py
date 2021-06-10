@@ -36,9 +36,8 @@ templates_path = ["_templates"]
 source_suffix = ".rst"
 master_doc = "index"
 
-project = "python"
+project = "tweezepy"
 copyright = "2020, Ian L. Morgan"
-#copyright = "2020-2025, Dan Foreman-Mackey & contributors"
 version = __version__
 release = __version__
 
