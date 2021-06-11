@@ -8,9 +8,8 @@
 # Folders
 build
 dist
-notebooks
 data
-tweezepy-paper
+
 # Don't need ipython checkpoint
 .ipynb_checkpoints
 

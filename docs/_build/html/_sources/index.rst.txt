@@ -11,5 +11,5 @@ You can learn more about how to use **tweezepy** from the tutorials listed below
    :maxdepth: 1
    :caption: Tutorials
 
-   tutorials/quickstart
-   tutorials/mcmc_tutorial
+   tutorials/basic_usage
+   tutorials/mcmc

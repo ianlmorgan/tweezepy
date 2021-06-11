@@ -2,7 +2,7 @@ import json
 import numpy as np
 import unittest
 
-import tweezepy.smmcalibration as smm
+import tweezepy.cd
 
 from matplotlib.testing.decorators import cleanup
 
@@ -39,7 +39,7 @@ class FunctionTests(unittest.TestCase):
 class PSDTestCase(unittest.TestCase):
     def setUp(self):
         # Data simulated and downsampled to 100 Hz
-        # alpha = 1.0E-5, kappa = 0.002
+        # gamma = 1.0E-5, kappa = 0.002
         npzdata = np.load('test-data/test_data.npz')
         self.xtrace = npzdata['data']
         self.psd = smm.PSD(self.xtrace,100,2)
@@ -139,7 +139,7 @@ class AVTestCase(unittest.TestCase):
     @cleanup
     def test_mcmc(self):
         av = self.av
-        av.mlefit()
+        av.mlefit()cd
         np.random.seed(0)
         av.mcmc(walkers=10,steps =200)
         expected = dict(np.load('test-data/test_AV_mcmc.npz'))

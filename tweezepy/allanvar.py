@@ -184,7 +184,7 @@ def calc_totvar(x,rate,N,mid,mj):
     return var
 
 ########################################################################
-# Noise Identification using ACF
+# Noise Identification Lac1 autorrelation
 
 
 
@@ -194,19 +194,24 @@ def noise_id(x,af, dmin = 0, dmax = 2):
 
     Parameters
     ----------
-    x : [type]
-        [description]
-    af : [type]
-        [description]
+    x : numpy.array
+        trace
+    af : int
+        averaging factor
     dmin : int, optional
-        [description], by default 0
+        minimum number of differentiations, by default 0
     dmax : int, optional
-        [description], by default 2
+        maximum number of differentiations, by default 2
 
     Returns
     -------
-    [type]
+    (alpha_int,alpha) : tuple
         [description]
+    alpha_int : int
+        integer power-law noise
+    alpha : float
+        float power-law noise
+
     """
     # Split time series into average positions of nonoverlapping bins
     N = len(x)
@@ -230,27 +235,7 @@ def noise_id(x,af, dmin = 0, dmax = 2):
         else:
             x = np.diff(x)
             d = d + 1
-
-def detrend(x, deg=1):
-    """
-    remove polynomial from data.
-    used by autocorr_noise_id()
-    Parameters
-    ----------
-    x: numpy.array
-        time-series
-    deg: int
-        degree of polynomial to remove from x
-    Returns
-    -------
-    x_detrended: numpy.array
-        detrended time-series
-    """
-    t = range(len(x))
-    p = np.polyfit(t, x, deg)
-    residual = x - np.polyval(p, t)
-    return residual
-
+            
 def edf_greenhall(alpha, d, m, N,
                   overlapping=False, modified=False, verbose=False):
     """ returns Equivalent degrees of freedom - couresy of allantools
@@ -281,6 +266,8 @@ def edf_greenhall(alpha, d, m, N,
         UNCERTAINTY OF STABILITY VARIANCES BASED ON FINITE DIFFERENCES
         Notes
         -----
+        Based on allantools https://github.com/aewallin/allantools
+
         Used for the following deviations
         (see http://www.wriley.com/CI2.pdf page 8)
         adev()
@@ -537,7 +524,6 @@ def greenhall_table1(alpha, d):
 
 def edf_totdev(N, m, alpha):
     """ Equivalent degrees of freedom for Total Deviation
-        FIXME: what is the right behavior for alpha outside 0,-1,-2?
         NIST SP1065 page 41, Table 7
     """
     alpha = int(alpha)

@@ -15,259 +15,12 @@ Created on Mon May  4 11:51:23 2020
 Author: Ian L. Morgan
 email: ilmorgan@ucsb.edu
 """
-import autograd.numpy as np
-import corner
-import emcee
-import matplotlib.pyplot as plt
-import warnings
+import numpy as np
 
-
-from autograd import hessian
-from autograd.scipy.stats import gamma
-from inspect import signature
-from scipy.optimize import curve_fit,minimize
 from scipy.signal import welch
-from scipy import stats
-
 from tweezepy.allanvar import avar,totvar
+from tweezepy.MLE import MLEfit, Gamma_Distribution
 from tweezepy.expressions import aliasPSD,lansdorpPSD,SMMAV
-
-class MCMC:
-    def __init__(self, walkers = 32, steps = 1600, progress = True,**kwargs):
-        """
-        Monte Carlo sampler
-
-        Parameters
-        ----------
-        walkers : int, optional
-            Number of walkers, by default 32
-        steps : int, optional
-            Number of steps, by default 1600
-        progress : bool, optional
-            Print progress bar, by default True
-        """
-        self.walkers = walkers
-        self.steps = steps
-
-        scale = np.power(10,np.floor(np.log10(self.params)))
-        pos = self.params + 1e-4 * np.random.randn(walkers,self.nparams) * scale
-        nwalkers,ndims = pos.shape
-        self.sampler = emcee.EnsembleSampler(nwalkers,ndims,self.logL,**kwargs)
-        self.sampler.run_mcmc(pos, steps,progress = progress)
-        self.samples = self.sampler.get_chain()
-        self.autocorr_time = self.sampler.get_autocorr_time()
-
-    def sample_plot(self,fig=None,labels = [],fig_kwgs={},ax_kwgs={}):
-        if not isinstance(fig, plt.Figure):
-            fig = plt.figure(figsize = (10,3*self.nparams),**fig_kwgs)
-        axes = fig.get_axes()
-        gs = plt.GridSpec(nrows=self.nparams,ncols =1)
-        if len(labels) == 0:
-            labels = self.names
-        if len(axes) == 0:
-            for i in range(self.nparams):
-                axes.append(fig.add_subplot(gs[i]))
-        #fig, axes = plt.subplots(self.nparams, figsize=(10, 3*self.nparams),
-        #                         sharex=True,squeeze=0)
-        for i,p in enumerate(labels):
-            ax = axes[i]
-            ax.plot(self.samples[:, :, i], c="k", alpha=0.3,**ax_kwgs)
-            ax.axvline(2*self.autocorr_time[i],c="k",lw=2)
-            ax.set_xlim(0, len(self.samples))
-            ax.set_ylabel(p)
-            ax.yaxis.set_label_coords(-0.1, 0.5)
-            ax.ticklabel_format(axis='y',style='sci',scilimits=(0,0))
-        axes[-1].set_xlabel("step number")
-        return fig,axes
-
-    def calc_mc_errors(self, percentiles = [15.87,50,84.13], discard = 100, thin = 10):
-        """
-        Computes percentiles from Monte Carlo samples.
-
-        Parameters
-        ----------
-        percentiles : list, optional
-            Percentiles for each parameter, by default [15.87,50,84.13]
-        discard : int, optional
-            Number of "burn-in" steps to discard, by default 100
-        thin : int, optional
-            N, by default 10
-        """
-        for tau in self.autocorr_time:
-            if any(discard < 2*tau for tau in self.autocorr_time):
-                warnings.warn('discard should be greater than twice the autocorrelation time %s.'%self.autocorr_time)
-            if any(thin < tau%2 for tau in self.autocorr_time):
-                warnings.warn('thin should be greater than half the autocorrelation time %s.'%self.autocorr_time)
-        self.flat_samples = self.sampler.get_chain(discard=discard,thin = thin,flat = True)
-        return np.percentile(self.flat_samples,percentiles,axis=0).T
-
-
-    def corner_plot(self,quantiles = [0.16,0.84],labels = None,**kwargs):
-        """
-        Utility function for generating corner plots.
-
-        Parameters
-        ----------
-        quantiles : list, optional
-            Quantiles to annotate, by default (0.16,0.84)
-        labels : list, optional
-            Parameter labels, by default None
-
-        Returns
-        -------
-        fig,ax
-            Figure and axes objects.
-        """
-        if not labels:
-            labels = self.names
-        fig = corner.corner(self.flat_samples,  
-                            truths=self.params,
-                            quantiles=quantiles,
-                            #levels=(1-np.exp(-0.5),),
-                            #title_fmt = '.2e',
-                            #show_titles = True,
-                            labels = labels,
-                            title_kwargs={'fontdict':{'fontsize':12}},
-                            **kwargs)
-        ax = fig.get_axes()
-        for a in ax:
-            if a.get_xlabel():
-                a.ticklabel_format(axis='x',style='sci',scilimits=(0,0))
-            if a.get_ylabel():
-                a.ticklabel_format(axis='y',style='sci',scilimits=(0,0))
-                a.get_yaxis().get_offset_text().set_position((-.5,0.9))
-        return fig,ax
-
-class MLEfit(MCMC):
-    """
-    Perform maximum likelihood estimation and uncertainty calculations.
-    """
-    def __init__(self,guess = None, scale_covar = False,fit_kwargs = {'method':'Nelder-Mead'}):
-        """
-        Parameters
-        ----------
-        guess : list, optional
-            Initial parameter guesses, by default None
-        scale_covar : bool, optional
-            Whether to scale standard errors by reduced chi-squared, by default False
-        fit_kwargs : dict, optional
-            Fitting keywork arguments to send to scipy.minimize, by default {'method':'Nelder-Mead'}
-        """
-        data = self.data
-        shape,y,yerr = data['shape'],data['y'],data['yerr']
-        self.nparams = len(self.names)
-        self.ndata = len(y)
-        self.nfree = self.ndata-self.nparams
-        # Probability distribution function
-        self.gd = Gamma_Distribution(shape,y)
-        # Log likelihood
-        self.logL = lambda p: self.gd.logpdf(self.func(*p)).sum()
-        # Negative log likelihood
-        self.negLL =  lambda p: -self.logL(p)
-        # Use automatic differentiation to calculate hessian
-        hess = hessian(self.negLL)
-        # Minimize negative log likelihood
-        self.fit = minimize(self.negLL,x0=guess,**fit_kwargs)
-        # Save minimizer fit results
-        self.params = self.fit['x']
-        self.success = self.fit['success']
-        # Collect results into dictionary
-        self.results = {}
-        # Throw warning if fit fails
-        if not self.success:
-            warnings.warn('MLE fitting failed. %s'%self.fit['message'])
-            self.params = np.array([float('nan') for i in range(self.nparams)])
-            self.std_errors = np.array([float('nan') for i in range(self.nparams)])
-        # Compute standard errors by inverting the expected Hessian
-        else:
-            # Covariance matrix
-            inv_hessian = np.linalg.inv(hess(self.params))
-            self.cov = 2. * inv_hessian
-            # Calculate errors from diagonals of covariance matrix
-            self.std_errors = np.sqrt(np.diag(self.cov))
-        for i,p in enumerate(self.names):
-            self.results['%s'%p] = self.params[i]
-            self.results['%s_error'%p] = self.std_errors[i]
-        # Calculate loglikelihood
-        self.loglikelihood = self.logL(self.params)
-        # Calculate fit values
-        yfit = self.func(*self.params); self.data['yfit'] = yfit
-        # Calculate residuals, chi2, and reduced chi2
-        residuals = (y-yfit)/yerr; self.data['residuals'] = residuals
-        self.chi2 = np.power(residuals,2).sum(); self.results['chi2'] = self.chi2
-        self.redchi2 = self.chi2/self.nfree; self.results['redchi2'] = self.redchi2
-        # Scale errors by reduched chi-squared value
-        if scale_covar:
-            self.std_errors *= self.redchi2
-        # Calculate fit support and p-value
-        ks = stats.kstest(residuals,'chi2',args=(self.nfree,))
-        self.support,self.p = ks
-        self.results['support'] = self.support
-        self.results['p-value'] = self.p
-        # Calculate AIC, AICc, and BIC
-        self.AIC = 2.*(self.nparams-self.loglikelihood); self.results['AIC'] = self.AIC
-        self.AICc = self.AIC + (2*(pow(self.nparams,2)+self.nparams))/(self.ndata-self.nparams-1)
-        #self.BIC = self.nparams*np.log(self.ndata)-2.*self.loglikelihood; self.results['BIC'] = self.BIC
-
-    def mcmc(self, walkers = 32, steps = 2000, discard = 100, thin = 10):
-        """
-        Runs Monte Carlo sampler and computes standard errors as 0.5*(std_u - std_l)
-
-        Parameters
-        ----------
-        walkers : int, optional
-            Number of walkers, by default 32
-        steps : int, optional
-            Number of steps to take, by default 2000
-        discard : int, optional
-            Number of initial steps to discard, by default 100
-        thin : int, optional
-            Distance between independent steps, by default 10
-        """
-        MCMC.__init__(self,walkers=walkers,steps=steps)
-        percentiles = self.calc_mc_errors(percentiles = [15.87,50,84.13],discard=discard,thin=thin)
-        for i,name in enumerate(self.names):
-            std_l, median, std_u = percentiles[i]
-            self.results['%s'%name] = median
-            self.std_errors[i] = 0.5 * (std_u - std_l)
-            self.results['%s_error'%name] = 0.5 * (std_u - std_l)
-
-
-class Gamma_Distribution:
-    """
-    Gamma probability distribution for AV and PSD.
-    """
-    def __init__(self,shape,yhat):
-        """
-        Parameters
-        ----------
-        shape : numeric
-            [description]
-        yhat : numeric
-            Measured 
-        """
-        self.yhat = yhat
-        self.shape = shape
-    def scale(self,y):
-        return y/self.shape 
-    def std(self,y):
-        scale = self.scale(y)
-        return stats.gamma.std(self.shape, scale = scale)
-    def pdf(self,y):
-        scale = self.scale(y)
-        return gamma.pdf(self.yhat/scale,self.shape)/scale
-    def logpdf(self,y):
-        scale = self.scale(y)
-        return gamma.logpdf(self.yhat/scale,self.shape) - np.log(scale)
-    def cdf(self,y):
-        scale = self.scale(y)
-        return stats.gamma.cdf(self.yhat,self.shape,scale=scale)
-    def logcdf(self, y):
-        scale = self.scale(y)
-        return gamma.logcdf(self.yhat,self.shape,scale = scale)
-    def interval(self,y,alpha = 0.95):
-        scale = self.scale(y)
-        return stats.gamma.interval(alpha,self.shape,scale = scale)
 
 class calibration(MLEfit):
     """
@@ -290,7 +43,11 @@ class calibration(MLEfit):
              fig_kwgs={},
              ax_fit_kwgs = {},
              ax_res_kwgs = {},
-             label = None):
+             data_label = None,
+             fit_label = None,
+             data_color = None,
+             fit_color = 'k',
+             no_display = False):
         """
         Utility function for plotting 
 
@@ -304,14 +61,25 @@ class calibration(MLEfit):
             Axis keyword arguments, by default {}
         ax_res_kwgs : dict, optional
             Axis keyword arguments, by default {}
-        label : str, optional
-            Legend label for data
+        data_label : str, optional
+            Legend label for data.
+        fit_label : str, optional
+            Legend label for fit line.
+        no_display : bool, optional
+            Set to True for test when there is no x-window.
 
         Returns
         -------
         fig,ax : Figure, Axes
             Figure and axes objects.
         """
+        try:
+            import matplotlib
+            if no_display:
+                matplotlib.use('Agg')
+            import matplotlib.pyplot as plt
+        except ImportError:
+            raise RuntimeError("Matplotlib is required for plotting.")
         data = self.data
         if not isinstance(fig, plt.Figure):
             fig = plt.figure(figsize = (5,5),**fig_kwgs)
@@ -323,11 +91,10 @@ class calibration(MLEfit):
                 ax.append(fig.add_subplot(gs[1], **ax_res_kwgs))
                 ax[1].axhline(0,c='k',**ax_res_kwgs)
                 ax[1].set_ylabel(r'$\Delta$')
-        data = self.data
         # Plot data with errorbars    
         eb = ax[0].errorbar(data['x'], data['y'], yerr=data['yerr'],
-                            fmt = 'o', zorder = 0,
-                            ms=3, capsize = 3, label = label)
+                            fmt = 'o', zorder = 0, c = data_color,
+                            ms=3, capsize = 3, label = data_label)
         ax[0].set_xscale('log')
         ax[0].set_yscale('log')
         # if there is a fit plot it
@@ -335,7 +102,7 @@ class calibration(MLEfit):
             # Plot fit
             c = eb[0].get_color() # get last color
             ax[0].plot(data['x'], data['yfit'],
-                       lw = 2, label='',c=c, zorder = 1) 
+                       lw = 2, label=fit_label,c=fit_color, zorder = 1) 
             if (len(ax) == 2):
                 ax[1].plot(data['x'],data['residuals'])
                 ax[1].set_xscale('log')
@@ -370,50 +137,77 @@ class calibration(MLEfit):
         gamma = 6 * np.pi * viscosity * radius 
         guess = [gamma,kappa]    
         return guess
+    def predefined(func,
+                   gamma = None,
+                   kappa = None,
+                   tracking_error = False,
+                   epsilon = None):
+        if gamma and kappa and tracking_error:
+             func2 = lambda e: func(gamma, kappa, e)
+        elif gamma and tracking_error:
+            func2 = lambda k,e: func(gamma, k, e)
+        elif kappa and tracking_error:
+            func2 = lambda g,e: func(g, kappa, e)
+        elif epsilon and tracking_error:
+            func2 = lambda g,k: func(g, k, epsilon)
+        elif gamma:
+            func2 = lambda k: func(gamma,k,0)
+        elif kappa:
+            func2 = lambda g: func(g,kappa,0)
+        elif tracking_error:
+            func2 = lambda g,k,e: func(g,k,e)
+        else:
+            func2 = lambda g,k: func(g,k,0)
+        return func2
+    def mlefit(self,**kwargs):
+        # If no guess provided, make default guess
+        if not self.guess:
+            #make default guess based on Stoke's drag and equipartition theorem
+            guess = self.make_guess()
+            if self.gamma:
+                guess.pop(0)
+            if self.kappa:
+                guess.pop(1)
+            if self.tracking_error:
+                guess.append(10)
+        self.guess = guess
+        MLEfit.__init__(self, pedantic = self.pedantic, scale_covar = self.scale_covar, **kwargs)
 
-    def mlefit(self, pedantic = True, **kwargs):
-        """
-        Estimate parameters and uncertainties using maximum likelihood estimation.
-
-        Parameters
-        ----------
-        pedantic : bool, optional
-            Ignore unhelpful warnings, by default True
-        """
-        if pedantic == False:
-            np.seterr('warn')
-        elif pedantic == True:
-            np.seterr('ignore')
-        # Fancy way of determining fit param names        
-        names = signature(self.func).parameters # inspect fit function parameters
-        names = list(names.keys())  # make list of parameter names
-        self.names = names
-        # Biased nonlinear least squares fit to get good starting values
-        #try:
-        #    popt,_ = curve_fit(self.func,self.x,self.y, sigma = self.yerr,
-        #                       absolute_sigma=True, p0 = self.guess, bounds = (1e-10,np.inf))
-        #except:
-        #    popt = self.guess
-        #    warnings.warn('Initial least-squares fit failed to find starting values.')
-        MLEfit.__init__(self, guess=self.guess,**kwargs)
 
 class AV(calibration):
     """
-    Class for calibration with allan variance method.
+    A class for computing and fitting the Allan variance using MLE.
 
-    Args:
-        calibration (class): Base class with shared calibration methods
+    Parameters
+    ----------
+    calibration : class
+        Base class with utility functions.
     """
-    def __init__(self, trace, fsample,taus = 'octave',mode = 'oavar',edf='approx'):
+    def __init__(self, trace, fsample,taus = 'octave',mode = 'oavar',edf='real'):
         """
-        Load trace and calculate allan variance.
+        Computes AV values.
 
-        Args:
-            trace (array): [description]
-            fsample (float): Sample 
-            taus (str, optional): Choose sampling type. Defaults to octave.
+        Parameters
+        ----------
+        trace : array-like
+            Bead trajectory.
+        fsample : float
+            Sampling frequency.
+        taus : str, optional
+            Tau interval sampling, by default 'octave'
+        mode : str, optional
+            Allan variance type, either 'avar', 'oavar', and 'totvar', by default 'oavar'
+        edf : str, optional
+            Equivalent degrees of freedom for AV, by default 'real'
+
+        Raises
+        ------
+        ValueError
+            [description]
         """
         calibration.__init__(self,trace,fsample)
+        if not mode in ['avar','oavar','totvar']:
+            raise RuntimeError('taus should be avar, oavar, or totvar.')
         if mode == 'avar':
             taus, edfs, oavs = avar(trace, rate = fsample, taus = taus,edf=edf)
         elif mode == 'oavar':
@@ -422,20 +216,25 @@ class AV(calibration):
             taus, edfs, oavs = totvar(trace, rate = fsample, taus = taus,edf=edf)
         else:
             raise ValueError('%s is not a valid mode.'%mode)
-        shapes = edfs/2
-        yerr = stats.gamma.std(shapes, scale = oavs/shapes)
         self.x = taus
         self.y = oavs
-        self.yerr = yerr
-        self.shape = shapes
-        self.data = {'x':taus,'shape':shapes,'y':oavs,'yerr':yerr}
+        self.shape = edfs/2
+        # Probability distribution function
+        self.gd = Gamma_Distribution(self.shape,self.y)
+        self.yerr = self.gd.std(self.y)
+        self.data = {'x':self.x,
+                     'shape':self.shape,
+                     'y':self.y,
+                     'yerr':self.yerr}
+        self.data_init = self.data.copy()
     
     def plot(self,
              fig = None,
              fig_kwgs = {},
              ax_fit_kwgs = {},
              ax_res_kwgs = {},
-             label = None,
+             data_label = None,
+             fit_label = None,
              **kwargs):
         """
         Utility function for plotting 
@@ -450,8 +249,10 @@ class AV(calibration):
             Axis keyword arguments, by default {}
         ax_res_kwgs : dict, optional
             Axis keyword arguments, by default {}
-        label : str or None, optional
+        data_label : str or None, optional
             Data label for plotting multiple traces
+        fit_label : str or None, optional
+            Fit label for plotting multiple traces
 
         Returns
         -------
@@ -464,27 +265,24 @@ class AV(calibration):
         Returns:
             **kwargs: Extra named parameters to send to errorbar.
         """
-        fig,ax = calibration.plot(self,
-                                  fig = fig,
-                                  fig_kwgs=fig_kwgs,
-                                  ax_fit_kwgs=ax_fit_kwgs,
-                                  ax_res_kwgs=ax_res_kwgs,
-                                  label = label)
+        fig,ax = calibration.plot(self)
         ax[-1].set_xlabel(r'$\tau$ (s)')
         ax[0].set_ylabel(r'$\sigma_{AV}^2$ (nm$^2$)')
         return fig,ax
     
     def mlefit(self, 
                fitfunc = 'SMMAV', 
+               cutoffs = [-np.inf,np.inf],
                tracking_error = False, 
                guess = None, 
                gamma = None, 
                kappa = None, 
                epsilon = None,
-               pedantic = True, 
                kT = 4.1, 
                viscosity = 8.94e-10, 
                radius = 530.,  
+               pedantic = True, 
+               scale_covar = False,
                **kwargs):
         """
         Estimate parameters and uncertainties via maximum likelihood estimation.
@@ -503,61 +301,60 @@ class AV(calibration):
             Fixed value for kappa parameter, by default None
         epsilon : float, optional
             Fixed value for epsilon parameter, by default None
-        pedantic : bool, optional
-            Ignore unhelpful warning messages, by default True
         kT : float, optional
             Thermal energy used in functions and initial parameter guesses, by default 4.1
         viscosity : float, optional
             Dynamic viscosity for initial parameter guesses in pN s/nm^2, by default 8.94e-10
         radius : float, optional
             Bead radius for inital parameter guesses, by default 530.
+        pedantic : bool, optional
+            Ignore unhelpful warning messages, by default True
+        scale_covar: bool, optional
+            Whether to scale covariance by reduced chi-squared, by default False
+        **kwargs
+            keyword arguments passed to scipy's minimizer
 
         Returns
         -------
         MLE fit results 
             Returns AV class object with MLE fit results
         """
+        self.cutoffs = cutoffs
+        self.tracking_error = tracking_error
+        self.guess = guess
+        self.gamma = gamma
+        self.kappa = kappa
+        self.epsilon = epsilon
+        self.kT = kT
+        self.viscosity = viscosity
+        self.radius = radius
+        self.pedantic = pedantic
+        self.scale_covar = scale_covar
+        if cutoffs:
+            assert len(cutoffs) == 2, "cutoffs should have a lower an upper cutoff in the form of [lower,upper]."
+            msk = (self.data_init['x']>=cutoffs[0])&(self.data_init['x']<=cutoffs[1])
+            for key,d in self.data_init.items():
+                self.data[key] = d[msk]        
         x = self.data['x']
+        # Sampling time
         ts = 1/self.fsample
         # By default, use lansdorp SMM AV function
         if fitfunc == 'SMMAV':
-            # Select appropriate function
-            if gamma and kappa and tracking_error:
-                func = lambda e: e/(2.*t)
-            elif gamma and tracking_error:
-                func = lambda k,e: SMMAV(x,gamma,k,kT=kT) + pow(e,2)*ts/x
-            elif kappa and tracking_error:
-                func = lambda g,e: SMMAV(x,g,kappa,kT=kT) + pow(e,2)*ts/x
-            elif epsilon and tracking_error:
-                func = lambda g,k: SMMAV(x,g,k,kT=kT) + pow(epsilon,2)*ts/x
-            elif gamma:
-                func = lambda k: SMMAV(x,gamma,k,kT=kT)
-            elif kappa:
-                func = lambda g: SMMAV(x,g,kappa,kT=kT)
-            elif tracking_error:
-                func = lambda g,k,e: SMMAV(x,g,k,kT=kT) + pow(e,2)*ts/x
-            else:
-                func = lambda g,k: SMMAV(x,g,k,kT=kT)
+            func = lambda g,k,e: SMMAV(x,ts,g,k,e,kT=kT)
+            func = calibration.predefined(func,
+                                          gamma=gamma,
+                                          kappa = kappa,
+                                          tracking_error=tracking_error,
+                                          epsilon = epsilon)
         else:
             # User provided function
             func = fitfunc
             if not guess:
-                warnings.warn("User-provided function requires initial parameter guesses.")
+                raise RuntimeError("User-provided function requires initial parameter guesses.")
         self.func = func
-        # If no guess provided, make default guess based on Stoke's drag and equipartition theorem.
-        if not guess:
-            guess = calibration.make_guess(self,kT=kT, viscosity = viscosity, radius = radius)
-            if gamma:
-                guess.pop(0)
-            if kappa:
-                guess.pop(1)
-            if tracking_error:
-                guess.append(5)
-        self.guess = guess
-        calibration.mlefit(self, pedantic = pedantic, **kwargs)
-        return self
+        calibration.mlefit(self,**kwargs)
         
-class PSD(calibration):
+class PSD(calibration,MLEfit):
     """
     Class for PSD calibration.
 
@@ -582,19 +379,25 @@ class PSD(calibration):
         msk = f>0
         f, dens = f[msk], dens[msk]
         shapes = np.full_like(f,bins)
-        yerr = stats.gamma.std(shapes,scale = dens/shapes)
         self.x = f
         self.shape = shapes
         self.y = dens
-        self.yerr = yerr
-        self.data = {'x':f,'shape':shapes,'y':dens,'yerr':yerr}
+        # Probability distribution function
+        self.gd = Gamma_Distribution(self.shape,self.y)
+        self.yerr = self.gd.std(self.y)
+        self.data = {'x':self.x,
+                     'shape':self.shape,
+                     'y':self.y,
+                     'yerr':self.yerr}
+        self.data_init = self.data.copy()
 
     def plot(self,
              fig = None,
              fig_kwgs = {},
              ax_fit_kwgs = {},
              ax_res_kwgs = {},
-             label = None,
+             data_label = None,
+             fit_label = None,
              **kwargs):
         """
         Utility function for plotting 
@@ -623,26 +426,24 @@ class PSD(calibration):
         Returns:
             **kwargs: Extra named parameters to send to errorbar.
         """
-        fig,ax = calibration.plot(self,
-                                  fig = fig,
-                                  fig_kwgs=fig_kwgs,
-                                  ax_fit_kwgs=ax_fit_kwgs,
-                                  ax_res_kwgs=ax_res_kwgs,
-                                  label = label)     
+        fig,ax = calibration.plot(self)     
         ax[-1].set_xlabel(r'$f$ (Hz)')
         ax[0].set_ylabel(r'PSD (nm$^2$/Hz)')
         return fig,ax
     def mlefit(self, 
                fitfunc = 'lansdorpPSD', 
+               cutoffs = [-np.inf,np.inf],
                tracking_error = False, 
                guess = None, 
                gamma = None, 
-               kappa = None,
-               epsilon = None, 
+               kappa = None, 
+               epsilon = None,
                kT = 4.1, 
                viscosity = 8.94e-10, 
-               radius = 530,
-               pedantic = True, **kwargs):
+               radius = 530.,  
+               pedantic = True, 
+               scale_covar = False,
+               **kwargs):
         """
         Estimate parameters and uncertainties via maximum likelihood estimation.
 
@@ -674,59 +475,42 @@ class PSD(calibration):
         MLE fit results 
             Returns AV class object with MLE fit results
         """
-        fs = self.fsample
+        self.cutoffs = cutoffs
+        self.tracking_error = tracking_error
+        self.guess = guess
+        self.gamma = gamma
+        self.kappa = kappa
+        self.epsilon = epsilon
+        self.kT = kT
+        self.viscosity = viscosity
+        self.radius = radius
+        self.pedantic = pedantic
+        self.scale_covar = scale_covar
+        if cutoffs:
+            assert len(cutoffs) == 2, "cutoffs should have a lower an upper cutoff in the form of [lower,upper]."
+            msk = (self.data_init['x']>=cutoffs[0])&(self.data_init['x']<=cutoffs[1])
+            for key,d in self.data_init.items():
+                self.data[key] = d[msk]        
         x = self.data['x']
         # Select appropriate function
         if fitfunc == 'lansdorpPSD':
-            if gamma and kappa and tracking_error:
-                func = lambda e: e/fs
-            elif gamma and tracking_error:
-                func = lambda k,e: lansdorpPSD(x,fs,gamma,k,kT=kT) + pow(e,2)/fs
-            elif kappa and tracking_error:
-                func = lambda g,e: lansdorpPSD(x,fs,g,kappa,kT=kT) + pow(e,2)/fs
-            elif epsilon and tracking_error:
-                func = lambda g,k: lansdorpPSD(x,fs,g,k,kT=kT) + pow(epsilon,2)/fs
-            elif gamma:
-                func = lambda k: lansdorpPSD(x,fs,gamma,k,kT=kT)
-            elif kappa:
-                func = lambda g: lansdorpPSD(x,fs,g,kappa,kT=kT)
-            elif tracking_error:
-                func = lambda g,k,e: lansdorpPSD(x,fs,g,k,kT=kT) + pow(e,2)/fs
-            else:
-                func = lambda g,k: lansdorpPSD(x,fs,g,k,kT=kT)
+            func = lambda g,k,e: lansdorpPSD(x,self.fsample,g,k,e,kT=kT)
+            func = calibration.predefined(func,
+                                          gamma=gamma,
+                                          kappa = kappa,
+                                          tracking_error=tracking_error,
+                                          epsilon = epsilon)
         elif fitfunc == 'aliasPSD':
-            if gamma and kappa and tracking_error:
-                func = lambda e: e/fs
-            elif gamma and tracking_error:
-                func = lambda k,e: aliasPSD(x,fs,gamma,k,kT=kT) + pow(e,2)/fs
-            elif kappa and tracking_error:
-                func = lambda g,e: aliasPSD(x,fs,g,kappa,kT=kT) + pow(e,2)/fs
-            elif epsilon and tracking_error:
-                func = lambda g,k: aliasPSD(x,fs,g,k,kT=kT) + pow(epsilon,2)/fs
-            elif gamma:
-                func = lambda k: aliasPSD(x,fs,gamma,k,kT=kT)
-            elif kappa:
-                func = lambda g: aliasPSD(x,fs,g,kappa,kT=kT)
-            elif tracking_error:
-                func = lambda g,k,e: aliasPSD(x,fs,g,k,kT=kT) + pow(e,2)/(2.*t)
-            else:
-                func = lambda g,k: aliasPSD(x,fs,g,k,kT=kT)
+            func = lambda g,k,e: aliasPSD(x,self.fsample,g,k,e,kT=kT)
+            func = calibration.predefined(func,
+                                          gamma=gamma,
+                                          kappa = kappa,
+                                          tracking_error=tracking_error,
+                                          epsilon = epsilon)
         else:
             func = fitfunc
             if not guess:
-                warnings.warn("User-provided functions require initial parameter guesses.")
-        # If no guess provided, make default guess
-        if not guess:
-            guess = calibration.make_guess(self,kT=kT,viscosity = viscosity,radius = radius)
-            if gamma:
-                guess.pop(0)
-            if kappa:
-                guess.pop(1)
-            if tracking_error:
-                guess.append(10)
-        self.guess = guess
+                raise RuntimeError("User-provided function requires initial parameter guesses.")
         self.func = func
-        calibration.mlefit(self, pedantic = pedantic, **kwargs)
-        
-        return self
+        calibration.mlefit(self, **kwargs)
 
