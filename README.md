@@ -56,11 +56,10 @@ Allan variance:
 <img src="examples/example_AV.png" width="600">
 
 # Jupyter noteboosk with examples
-Jupyter notebooks are interactive python scripts, embedded in a browser, allowing you to manipulate data and display plots like easily. For guidance on installing jupyter, please refer to https://jupyter.org/install.
+Jupyter notebooks are interactive Python scripts, embedded in a browser, allowing you to manipulate data and display plots like easily. For guidance on installing jupyter, please refer to https://jupyter.org/install.
 
 See /examples for some examples in notebook format.
 
 github formats the notebooks into nice web-pages, for example
 * [Basic usage](https://github.com/ianlmorgan/tweezepy/tree/master/examples/basic_usage.ipynb)
 * [MCMC](https://github.com/ianlmorgan/tweezepy/tree/master/examples/MCMC.ipynb)
-
