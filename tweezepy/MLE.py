@@ -228,7 +228,7 @@ class MLEfit(MCMC):
         self.fit_data = data.copy()
         self.data['yfit'] = yfit
         # Calculate residuals, chi2, and reduced chi2
-        residuals = (y-yfit)/yerr; 
+        residuals = (y-yfit)/yerr; self.residuals = residuals
         self.data['residuals'] = residuals
         self.chi2 = np.power(residuals,2).sum(); self.results['chi2'] = self.chi2
         self.nfree = self.ndata-self.nparams

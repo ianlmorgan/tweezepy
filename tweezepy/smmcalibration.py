@@ -319,6 +319,7 @@ class AV(calibration):
         MLE fit results 
             Returns AV class object with MLE fit results
         """
+        self.fitfunc = fitfunc
         self.cutoffs = cutoffs
         self.tracking_error = tracking_error
         self.guess = guess

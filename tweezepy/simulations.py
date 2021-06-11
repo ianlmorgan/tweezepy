@@ -1,7 +1,7 @@
 import numpy as np
 from numba import jit
 @jit(nopython=True) # speeds up certain types of code
-def simulate_trace(gamma = 1.se-5,
+def simulate_trace(gamma = 1.e-5,
                    kappa = None,
                    fsim = 400,
                    sim_points = 10240,
