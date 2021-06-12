@@ -27,7 +27,7 @@ The `Tweezepy` package includes the following modules:
 Simulate data:
 ```python
 >>> import matplotlib.pyplot as plt
->>> from tweezepy import downsampled_trace
+>>> from tweezepy.simulations import downsampled_trace
 >>> xtrace = downsampled_trace()
 >>> plt.plot(xtrace)
 >>> plt.show()
