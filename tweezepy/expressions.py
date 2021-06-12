@@ -1,6 +1,6 @@
 import autograd.numpy as np
 """
-Analytical models
+Closed-form expressions for the expected AV and PSD of a bead trajectory.
 """
 
 def SMMAV(t,ts,g,k,e,kT = 4.1):

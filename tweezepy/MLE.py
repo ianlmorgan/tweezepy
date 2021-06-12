@@ -55,8 +55,7 @@ class MCMC:
                     fig=None,
                     labels = [],
                     fig_kwgs={},
-                    ax_kwgs={},
-                    no_display = False):
+                    ax_kwgs={}):
         """
         Plot the accepted Monte Carlo samples.
 

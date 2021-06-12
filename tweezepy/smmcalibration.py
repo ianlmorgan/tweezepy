@@ -46,8 +46,7 @@ class calibration(MLEfit):
              data_label = None,
              fit_label = None,
              data_color = None,
-             fit_color = 'k',
-             no_display = False):
+             fit_color = 'k'):
         """
         Utility function for plotting 
 
@@ -65,8 +64,6 @@ class calibration(MLEfit):
             Legend label for data.
         fit_label : str, optional
             Legend label for fit line.
-        no_display : bool, optional
-            Set to True for test when there is no x-window.
 
         Returns
         -------
