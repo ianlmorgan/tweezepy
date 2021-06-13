@@ -19,8 +19,6 @@ jobs:
         pip install -U setuptools wheel build
     - name: Build
       run: python -m build .
-    - name: Run unit tests
-      run: python -m unittest
     - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@master
       with:
