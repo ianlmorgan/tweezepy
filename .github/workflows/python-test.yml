@@ -14,5 +14,4 @@ jobs:
       - name: Test with unittest
         run: |
           pip install numpy
-          pip install unittest
           python -m unittest
