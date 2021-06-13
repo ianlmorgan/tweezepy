@@ -1,3 +1,8 @@
+"""
+This module performs operations associated with calculating the Allan variance. 
+
+"""
+
 import numpy as np
 import scipy
 import warnings 
@@ -6,18 +11,17 @@ def m_generator(N,taus = 'octave'):
     assert taus in ['all','octave','decade'], "taus must be either all, octave, or decade."
     if taus == 'all':
         # all-tau sampling not particularly useful but why not?
-        m = np.linspace(1.0,N,N,dtype='int')
-        m = m[m<=N//2]
+        maxn = N//2
+        m = np.linspace(1.0,maxn,maxn,dtype='int')
     elif taus == 'octave':
         # octave sampling break bin sizes, m, into powers of 2^n
         maxn = int(np.floor(np.log2(N/2))) # m =< N/2
         m = np.logspace(0,maxn-1,maxn,base=2,dtype='int')  #bin sizes
     elif taus == 'decade':
         # again not particularly useful, but why not?
-        maxn = int(np.floor(np.log10(N)))
+        maxn = int(np.floor(np.log10(N/2)))
         m = [np.array([1,2,4])*k for k in np.logspace(0,maxn,maxn+1,base=10,dtype='int')]
         m = np.ravel(m)
-        m = m[m<=N//2]
     return m
 
 def calc_avar(phase,rate,mj,step):
@@ -33,7 +37,7 @@ def avar(data,rate = 1.0,taus = 'octave', overlapping = True, edf = 'approx'):
     """
     Calculate standard allan variance 
     Takes an array of bead positions.
-    Returns the taus, shapes, and oavs.
+    Returns the taus, edfs, and oavs.
 
     Parameters
     ----------
@@ -45,15 +49,18 @@ def avar(data,rate = 1.0,taus = 'octave', overlapping = True, edf = 'approx'):
     Returns
     -------
     taus : array
-        taus.
-    shape : array
-        shapes.
+        Observation times.
+    edfs : array
+        Equivalent degrees of freedom.
     oavs : array
         Allan variance.
-
+    
+    Notes
+    -----
+    Adapted from Allantools
     """
     assert type(overlapping) == bool, 'overlapping keyword argument should be a boolean.'
-    assert (edf == 'approx') or (edf == 'real'), 'edf keyword argument should be approx or real.'
+    assert edf in ['approx','real'], 'edf keyword argument should be approx or real.'
     rate = float(rate)
     data = np.asarray(data) # convert to numpy array
     N = len(data)
@@ -62,11 +69,6 @@ def avar(data,rate = 1.0,taus = 'octave', overlapping = True, edf = 'approx'):
     m = m[n>=2]
     taus = m/rate # tau = m*tau_c
     if edf == 'real':
-        #alpha_int =  np.array([noise_id(data,mj)[0] for mj in m])
-        #prev = np.arange(len(alpha_int))
-        #prev[np.isnan(alpha_int)] = 0
-        #prev = np.maximum.accumulate(prev)
-        #alpha_int = alpha_int[prev]
         edfs = np.empty(len(m))
         for i,mj in enumerate(m):
             if N//mj > 32:
@@ -76,17 +78,6 @@ def avar(data,rate = 1.0,taus = 'octave', overlapping = True, edf = 'approx'):
             else:
                 warnings.warn('Real edf failed to identify noise for %s. Falling back to approximate edf.'%mj)
                 edfs[i] = edf_approx(N,mj)
-        #edfs = np.array([edf_greenhall(alpha_int[i],2,mj,N) if (alpha_int[i]<3) and (alpha_int[i]>-3) else edf_approx(N,mj) for i,mj in enumerate(m)])
-        #edfs = np.zeros(len(m))
-        #for i,mj in enumerate(m):
-            # autocorrelation is only good for N/mj >32
-            #if N//mj > 32:
-            #    alpha_int = noise_id(data,mj)[0]
-            #if (alpha_int < 3) and (alpha_int >-3):
-            #    edfs[i] = edf_greenhall(alpha_int,2,mj,N,overlapping=overlapping)
-            #else:
-            #    warnings.warn('Real edf failed for %s'% mj)
-            #    edfs[i] = edf_approx(N,mj)
     elif edf == 'approx':
         edfs = edf_approx(N,m)
     else:
@@ -184,9 +175,7 @@ def calc_totvar(x,rate,N,mid,mj):
     return var
 
 ########################################################################
-# Noise Identification Lac1 autorrelation
-
-
+# Noise Identification Lag1 autorrelation
 
 def noise_id(x,af, dmin = 0, dmax = 2):
     """

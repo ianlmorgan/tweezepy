@@ -71,9 +71,6 @@ class calibration(MLEfit):
             Figure and axes objects.
         """
         try:
-            import matplotlib
-            if no_display:
-                matplotlib.use('Agg')
             import matplotlib.pyplot as plt
         except ImportError:
             raise RuntimeError("Matplotlib is required for plotting.")

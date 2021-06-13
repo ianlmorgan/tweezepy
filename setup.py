@@ -32,5 +32,6 @@ setuptools.setup(name=pkginfo['name'],
                                      'scipy',
                                      'autograd',
                                      'emcee'],
-                 tests_require=['pytest','numpy'],
+                 tests_require=['unittest',
+                                'numpy'],
                  ) 
