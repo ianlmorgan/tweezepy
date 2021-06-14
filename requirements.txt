@@ -1,5 +1,6 @@
 autograd
 emcee
 matplotlib
+numba
 numpy
 scipy
