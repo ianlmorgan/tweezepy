@@ -8,7 +8,7 @@ import unittest
 from tweezepy.simulations import downsampled_trace
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
-class(unittest.TestCase):
+class test_simulations(unittest.TestCase):
     def setUp(self):
         path = os.path.join(this_dir,'data/trace.txt')
         self.test_trace = np.loadtxt(path)

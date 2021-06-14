@@ -176,6 +176,18 @@ class AV(calibration):
     ----------
     calibration : class
         Base class with utility functions.
+
+    :Example:
+        ::
+
+            from tweezepy.simulations import downsampled_trace
+            # Simulate sample data
+            trace = downsampled_trace()
+            # Compute overlapping AV
+            av = AV(trace,fsample = 100)
+            # Perform MLE fit
+            av.mlefit()
+            print(av.results)
     """
     def __init__(self, trace, fsample,taus = 'octave',mode = 'oavar',edf='real'):
         """
@@ -353,8 +365,21 @@ class PSD(calibration,MLEfit):
     """
     Class for PSD calibration.
 
-    Args:
-        calibration (base class): Base class with fitting methods
+    Parameters
+    ---------- 
+        calibration (base class): Base class with shared methods
+
+    :Example:
+        ::
+
+            from tweezepy.simulations import downsampled_trace
+            # Simulate sample data
+            trace = downsampled_trace()
+            # Compute PSD using Welch's method
+            psd = PSD(trace,fsample = 100)
+            # Perform MLE fit
+            psd.mlefit()
+            print(psd.results)
     """
     def __init__(self, trace, fsample,bins=3,**kwargs):
         """
@@ -415,12 +440,6 @@ class PSD(calibration,MLEfit):
         fig,ax : Figure, Axes
             Figure and axes objects.
         """
-        """
-        Plot av data and fit (if applicable).
-
-        Returns:
-            **kwargs: Extra named parameters to send to errorbar.
-        """
         fig,ax = calibration.plot(self)     
         ax[-1].set_xlabel(r'$f$ (Hz)')
         ax[0].set_ylabel(r'PSD (nm$^2$/Hz)')
@@ -465,10 +484,6 @@ class PSD(calibration,MLEfit):
         radius : float, optional
             Bead radius for inital parameter guesses, by default 530.
 
-        Returns
-        -------
-        MLE fit results 
-            Returns AV class object with MLE fit results
         """
         self.cutoffs = cutoffs
         self.tracking_error = tracking_error
