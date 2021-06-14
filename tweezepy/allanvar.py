@@ -5,7 +5,6 @@ This module performs operations associated with calculating the Allan variance.
 
 import numpy as np
 import scipy
-import warnings 
 
 def m_generator(N,taus = 'octave'):
     assert taus in ['all','octave','decade'], "taus must be either all, octave, or decade."
@@ -76,7 +75,7 @@ def avar(data,rate = 1.0,taus = 'octave', overlapping = True, edf = 'approx'):
             if (alpha_int<3) and (alpha_int>-3):
                 edfs[i] = edf_greenhall(alpha_int,2,mj,N)
             else:
-                warnings.warn('Real edf failed to identify noise for %s. Falling back to approximate edf.'%mj)
+                print('Real edf failed to identify noise for %s. Falling back to approximate edf.'%mj)
                 edfs[i] = edf_approx(N,mj)
     elif edf == 'approx':
         edfs = edf_approx(N,m)
@@ -111,6 +110,10 @@ def totvar(data, rate=1.0, taus='octave',edf = 'approx'):
         The sampling rate for phase or frequency, in Hz
     taus: np.array
         Array of tau values for which to compute measurement
+
+    Notes
+    -----
+    Adapted from Allantools
     """
     rate = float(rate)
     data = np.asarray(data) # make sure data is an array, not a series or list
@@ -154,7 +157,7 @@ def totvar(data, rate=1.0, taus='octave',edf = 'approx'):
             if (alpha_int <= 0) and (alpha_int >= -2):
                 edfs[idx] = edf_totdev(N,mj,alpha_int)
             else:
-                warnings.warn('Real edf failed for %s.'%mj)
+                print('Real edf failed for %s.'%mj)
                 edfs[idx] = edf_approx(N,mj)
     return taus,edfs,tvars
 def totvar_bias(alpha_int):
@@ -207,9 +210,8 @@ def noise_id(x,af, dmin = 0, dmax = 2):
     x = x[:N//af * af].reshape((N//af,af)) # cut to correct lengths
     x = np.average(x,axis=1)
     # require minimum length for time-series
-    if len(x) < 32:
-        #print(("noise_id() Can't determine noise-ID for"
-        #       " time-series length= %d") % len(x))
+    if N < 32:
+        print(("noise_id() Can't determine noise-ID for time-series of length= %d") %len(x))
         return np.nan,np.nan
         #raise NotImplementedError
     d = 0 # number of differentiations
@@ -255,7 +257,7 @@ def edf_greenhall(alpha, d, m, N,
         UNCERTAINTY OF STABILITY VARIANCES BASED ON FINITE DIFFERENCES
         Notes
         -----
-        Based on allantools https://github.com/aewallin/allantools
+        Adapted from allantools https://github.com/aewallin/allantools
 
         Used for the following deviations
         (see http://www.wriley.com/CI2.pdf page 8)
@@ -428,7 +430,8 @@ def greenhall_sx(t, F, alpha):
 
 
 def greenhall_sw(t, alpha):
-    """ Eqn (7) from Greenhall2004
+    """ 
+    Eqn (7) from Greenhall2004
     """
     alpha = int(alpha)
     if alpha == 2:
@@ -512,8 +515,9 @@ def greenhall_table1(alpha, d):
     return table1[row_idx][col_idx]
 
 def edf_totdev(N, m, alpha):
-    """ Equivalent degrees of freedom for Total Deviation
-        NIST SP1065 page 41, Table 7
+    """ 
+    Equivalent degrees of freedom for Total Deviation
+    NIST SP1065 page 41, Table 7
     """
     alpha = int(alpha)
     if alpha in [0, -1, -2]:
@@ -594,6 +598,21 @@ def edf_simple(N, m, alpha, pedantic = False):
 
     return edf
 
-
 def edf_approx(N,mj):
+    """
+    Approximate edf based on the number of nonoverlapping bins.
+    From Lansdorp and Saleh (2012)
+
+    Parameters
+    ----------
+    N : [type]
+        [description]
+    mj : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
     return N//mj-1

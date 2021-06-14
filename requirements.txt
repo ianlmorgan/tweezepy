@@ -1,4 +1,5 @@
-numpy
-scipy
 autograd
 emcee
+matplotlib
+numpy
+scipy

@@ -1,19 +1,15 @@
-# Spyder files
-.spyproject
+# VS code configuration
 .vscode
-env/
-*.pyc
-# sphinx docs generated here:
-docs/_build/**
 # Python egg metadata, regenerated from source files by setuptools
 *.egg-info
 # Folders
 build
 dist
-data
-
-# Don't need ipython checkpoint
+htmlcov
+# Don't need ipython checkpoints
 .ipynb_checkpoints
+# Still setting up coverage
+.coverage
 
 # Other files
 *.pyc

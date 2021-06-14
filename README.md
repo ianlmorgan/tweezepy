@@ -32,7 +32,7 @@ Simulate data:
 >>> plt.plot(xtrace)
 >>> plt.show()
 ```
-<img src="examples/example_trace.png" width=600>
+<img src="docs/example_trace.png" width=600>
 
 Power spectral density:
 ```python
@@ -43,7 +43,7 @@ Power spectral density:
 >>> psd.plot()
 ```
 
-<img src="examples/example_PSD.png" width="600">
+<img src="docs/example_PSD.png" width="600">
 
 Allan variance:
 ```python
@@ -53,13 +53,13 @@ Allan variance:
 >>> print(av.results)
 >>> av.plot()
 ```
-<img src="examples/example_AV.png" width="600">
+<img src="docs/example_AV.png" width="600">
 
 # Jupyter noteboosk with examples
 Jupyter notebooks are interactive Python scripts, embedded in a browser, allowing you to manipulate data and display plots like easily. For guidance on installing jupyter, please refer to https://jupyter.org/install.
 
-See /examples for some examples in notebook format.
+See /docs for some examples in notebook format.
 
 github formats the notebooks into nice web-pages, for example
-* [Basic usage](https://github.com/ianlmorgan/tweezepy/tree/master/examples/basic_usage.ipynb)
-* [MCMC](https://github.com/ianlmorgan/tweezepy/tree/master/examples/MCMC.ipynb)
+* [Basic usage](https://github.com/ianlmorgan/tweezepy/tree/master/docs/basic_usage.ipynb)
+* [MCMC](https://github.com/ianlmorgan/tweezepy/tree/master/docs/MCMC.ipynb)

@@ -48,5 +48,13 @@ class test_avar(unittest.TestCase):
         test_data = np.loadtxt(path)
         np.testing.assert_allclose(avdata,test_data)
 
+class test_edfs():
+    def setUp(self):
+        self.N = 10
+        self.m = 2
+    def test_edf_approx(self):
+        edf = self.N//self.m -1
+        self.assertEqual(edf,edf_approx(self.N,self.m))
+
 if __name__ == '__main__':
     unittest.main()
