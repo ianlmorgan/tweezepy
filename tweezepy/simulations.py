@@ -1,3 +1,6 @@
+"""
+This module include functions for running bead trajectory simulations.
+"""
 import numpy as np
 from numba import jit
 @jit(nopython=True) # speeds up certain types of code

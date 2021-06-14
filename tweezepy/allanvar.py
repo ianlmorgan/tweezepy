@@ -1,12 +1,28 @@
 """
 This module performs operations associated with calculating the Allan variance. 
 
+Adapted from allantools https://github.com/aewallin/allantools
 """
 
 import numpy as np
 import scipy
 
 def m_generator(N,taus = 'octave'):
+    """
+    Generates averaging factor for calculating Allan variance.
+
+    Parameters
+    ----------
+    N : int
+        Number of points in trajectory
+    taus : str, optional
+        Type of sampling, by default 'octave'
+
+    Returns
+    -------
+    m : np.array
+        Averaging factor.
+    """
     assert taus in ['all','octave','decade'], "taus must be either all, octave, or decade."
     if taus == 'all':
         # all-tau sampling not particularly useful but why not?
@@ -47,16 +63,14 @@ def avar(data,rate = 1.0,taus = 'octave', overlapping = True, edf = 'approx'):
 
     Returns
     -------
+    (taus,edfs,oavs) : tuple
+        Array of computed values.
     taus : array
         Observation times.
     edfs : array
         Equivalent degrees of freedom.
     oavs : array
         Allan variance.
-    
-    Notes
-    -----
-    Adapted from Allantools
     """
     assert type(overlapping) == bool, 'overlapping keyword argument should be a boolean.'
     assert edf in ['approx','real'], 'edf keyword argument should be approx or real.'
@@ -110,10 +124,17 @@ def totvar(data, rate=1.0, taus='octave',edf = 'approx'):
         The sampling rate for phase or frequency, in Hz
     taus: np.array
         Array of tau values for which to compute measurement
-
-    Notes
-    -----
-    Adapted from Allantools
+    
+    Returns
+    -------
+    (taus,edfs,tvars): tuple
+        Arrays of compute values.
+    taus : np.array
+        Observation times.
+    edfs : np.array
+        Equivalent degrees of freedom.
+    tvars : np.array
+        Total variances.
     """
     rate = float(rate)
     data = np.asarray(data) # make sure data is an array, not a series or list
@@ -204,6 +225,13 @@ def noise_id(x,af, dmin = 0, dmax = 2):
     alpha : float
         float power-law noise
 
+    References
+    ----------
+    Power law noise identification using the lag 1 autocorrelation
+    Riley,W.J. et al.
+    18th European Frequency and Time Forum (EFTF 2004)
+    https://ieeexplore.ieee.org/document/5075021
+
     """
     # Split time series into average positions of nonoverlapping bins
     N = len(x)
@@ -252,21 +280,11 @@ def edf_greenhall(alpha, d, m, N,
         -------
         edf: float
             Equivalent degrees of freedom
+        References
+        ----------
         Greenhall, Riley, 2004
         https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20050061319.pdf
         UNCERTAINTY OF STABILITY VARIANCES BASED ON FINITE DIFFERENCES
-        Notes
-        -----
-        Adapted from allantools https://github.com/aewallin/allantools
-
-        Used for the following deviations
-        (see http://www.wriley.com/CI2.pdf page 8)
-        adev()
-        oadev()
-        mdev()
-        tdev()
-        hdev()
-        ohdev()
     """
 
     if modified:
@@ -418,8 +436,7 @@ def greenhall_sz(t, F, alpha, d):
     assert(0)  # ERROR
 
 def greenhall_sx(t, F, alpha):
-    """ Eqn (8) from Greenhall2004
-    """
+    """ Eqn (8) from Greenhall2004 """
     if F == float('inf'):
         return greenhall_sw(t, alpha+2)
     a = 2*greenhall_sw(t, alpha)
@@ -430,9 +447,7 @@ def greenhall_sx(t, F, alpha):
 
 
 def greenhall_sw(t, alpha):
-    """ 
-    Eqn (7) from Greenhall2004
-    """
+    """ Eqn (7) from Greenhall2004 """
     alpha = int(alpha)
     if alpha == 2:
         return -np.abs(t)
@@ -548,17 +563,17 @@ def edf_simple(N, m, alpha, pedantic = False):
         'rf' returns random walk frequency noise.   alpha=-2
         If the input is not recognized, it defaults to idealized, uncorrelated
         noise with (N-1) degrees of freedom.
+    Returns
+    -------
+    edf : float
+        Equivalent degrees of freedom
     Notes
     -----
        S. Stein, Frequency and Time - Their Measurement and
        Characterization. Precision Frequency Control Vol 2, 1985, pp 191-416.
        http://tf.boulder.nist.gov/general/pdf/666.pdf
        
-       Modified from allantools.
-    Returns
-    -------
-    edf : float
-        Equivalent degrees of freedom
+    
     """
 
     N = float(N)
@@ -605,14 +620,15 @@ def edf_approx(N,mj):
 
     Parameters
     ----------
-    N : [type]
-        [description]
-    mj : [type]
-        [description]
+    N : int
+        Number of bead trajectory points.
+    mj : int
+        Averaging factor
 
     Returns
     -------
-    [type]
-        [description]
+    edf : float
+        Equivalent degrees of freedom
     """
-    return N//mj-1
+    edf = N//mj - 1
+    return edf
