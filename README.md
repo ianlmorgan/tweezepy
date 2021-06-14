@@ -1,4 +1,5 @@
-# tweezepy
+# Tweezepy
+[![DOI](https://zenodo.org/badge/261266475.svg)](https://zenodo.org/badge/latestdoi/261266475)
 This is [Tweezepy](https://github.com/ianlmorgan/tweezepy), a Python package for calibrating forces in single-molecule force spectroscopy video-tracking experiments using the power spectral density (PSD) and Allan variance (AV).
 
 # How to install
