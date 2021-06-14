@@ -1,6 +1,6 @@
 {
     "name": "Tweezepy",
-    "version": "0.10.0",
+    "version": "0.10.1",
     "description": "Single-molecule force spectroscopy calibration",
     "author": "Ian L. Morgan",
     "author_email" : "ilmorgan@ucsb.edu",
