@@ -198,6 +198,7 @@ class MLEfit(MCMC):
         shape,y,yerr = data['shape'],data['y'],data['yerr']
         self.ndata = len(y)
         # Log likelihood
+        self.gd = Gamma_Distribution(shape,y)
         self.logL = lambda p: self.gd.logpdf(self.func(*p)).sum()
         # Negative log likelihood
         self.negLL =  lambda p: -self.logL(p)
@@ -292,23 +293,23 @@ class Gamma_Distribution:
         """
         self.yhat = yhat
         self.shape = shape
-    def scale(self,y):
-        return y/self.shape 
-    def std(self,y):
-        scale = self.scale(y)
+    def scale(self,ytrue):
+        return ytrue/self.shape 
+    def std(self,ytrue):
+        scale = self.scale(ytrue)
         return stats.gamma.std(self.shape, scale = scale)
-    def pdf(self,y):
-        scale = self.scale(y)
+    def pdf(self,ytrue):
+        scale = self.scale(ytrue)
         return gamma.pdf(self.yhat/scale,self.shape)/scale
-    def logpdf(self,y):
-        scale = self.scale(y)
+    def logpdf(self,ytrue):
+        scale = self.scale(ytrue)
         return gamma.logpdf(self.yhat/scale,self.shape) - np.log(scale)
-    def cdf(self,y):
-        scale = self.scale(y)
+    def cdf(self,ytrue):
+        scale = self.scale(ytrue)
         return stats.gamma.cdf(self.yhat,self.shape,scale=scale)
-    def logcdf(self, y):
-        scale = self.scale(y)
+    def logcdf(self, ytrue):
+        scale = self.scale(ytrue)
         return gamma.logcdf(self.yhat,self.shape,scale = scale)
-    def interval(self,y,alpha = 0.95):
-        scale = self.scale(y)
+    def interval(self,ytrue,alpha = 0.95):
+        scale = self.scale(ytrue)
         return stats.gamma.interval(alpha,self.shape,scale = scale)

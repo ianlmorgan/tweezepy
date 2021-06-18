@@ -227,7 +227,7 @@ class AV(calibration):
         self.shape = edfs/2
         # Probability distribution function
         self.gd = Gamma_Distribution(self.shape,self.y)
-        self.yerr = self.gd.std(self.y)
+        self.yerr = self.gd.std(y)
         self.data = {'x':self.x,
                      'shape':self.shape,
                      'y':self.y,
