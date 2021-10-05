@@ -165,10 +165,15 @@ class MCMC:
         ax = fig.get_axes()
         for a in ax:
             if a.get_xlabel():
-                a.ticklabel_format(axis='x',style='sci',scilimits=(0,0))
+                a.ticklabel_format(axis='x',style='sci',scilimits=(0,0),useMathText=True)
+                t = a.get_xaxis().get_offset_text()
+                t.set_position((1.1,.25))
+                #t.set_xposition((-.5,0.9))
+                #a.ticklabel_format()
             if a.get_ylabel():
-                a.ticklabel_format(axis='y',style='sci',scilimits=(0,0))
-                a.get_yaxis().get_offset_text().set_position((-.5,0.9))
+                a.ticklabel_format(axis='y',style='sci',scilimits=(0,0),useMathText=True)
+                t = a.get_yaxis().get_offset_text()
+                t.set_position((-.3,0.9))
         return fig,ax
         
 class MLEfit(MCMC):

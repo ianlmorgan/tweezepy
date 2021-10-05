@@ -7,6 +7,8 @@ Adapted from allantools https://github.com/aewallin/allantools
 import numpy as np
 import scipy
 
+from warnings import warn
+
 def m_generator(N,taus = 'octave'):
     """
     Generates averaging factor for calculating Allan variance.
@@ -89,12 +91,12 @@ def avar(data,rate = 1.0,taus = 'octave', overlapping = True, edf = 'approx'):
             if (alpha_int<3) and (alpha_int>-3):
                 edfs[i] = edf_greenhall(alpha_int,2,mj,N)
             else:
-                print('Real edf failed to identify noise for %s. Falling back to approximate edf.'%mj)
+                warn('Real edf failed to identify noise for %s. Falling back to approximate edf.'%mj)
                 edfs[i] = edf_approx(N,mj)
     elif edf == 'approx':
         edfs = edf_approx(N,m)
     else:
-        print('edf keyword argument %s not recognized.'%edf)
+        warn('edf keyword argument %s not recognized.'%edf)
         raise UserWarning
     # Calculate phasedata from Eq. 18b (in erratum)
     phase = np.cumsum(data)/rate  # integrate positions, converting frequency to phase data
@@ -178,7 +180,7 @@ def totvar(data, rate=1.0, taus='octave',edf = 'approx'):
             if (alpha_int <= 0) and (alpha_int >= -2):
                 edfs[idx] = edf_totdev(N,mj,alpha_int)
             else:
-                print('Real edf failed for %s.'%mj)
+                warn('Real edf failed for %s.'%mj)
                 edfs[idx] = edf_approx(N,mj)
     return taus,edfs,tvars
 def totvar_bias(alpha_int):
@@ -239,7 +241,7 @@ def noise_id(x,af, dmin = 0, dmax = 2):
     x = np.average(x,axis=1)
     # require minimum length for time-series
     if N < 32:
-        print(("noise_id() Can't determine noise-ID for time-series of length= %d") %len(x))
+        warn(("noise_id() Can't determine noise-ID for time-series of length= %d") %len(x))
         return np.nan,np.nan
         #raise NotImplementedError
     d = 0 # number of differentiations
@@ -608,8 +610,8 @@ def edf_simple(N, m, alpha, pedantic = False):
     else:
         edf = (N/m - 1) # assume correlated noise
         if pedantic == True:
-            print("Noise type not recognized."
-                  " Defaulting to N/m - 1 degrees of freedom.")
+            warn("Noise type not recognized."
+                 " Defaulting to N/m - 1 degrees of freedom.")
 
     return edf
 
