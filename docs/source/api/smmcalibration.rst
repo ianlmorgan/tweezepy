@@ -1,3 +1,4 @@
+.. _smmcalibration:
 .. currentmodule:: tweezepy.smmcalibration
 
 smmcalibration
