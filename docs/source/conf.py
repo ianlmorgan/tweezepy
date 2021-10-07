@@ -13,7 +13,7 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-#import tweezepy
+import tweezepy
 
 # -- Project information -----------------------------------------------------
 
@@ -22,8 +22,8 @@ copyright = '2021, Ian L. Morgan'
 author = 'Ian L. Morgan'
 
 # The full version, including alpha/beta/rc tags
-#version = tweezepy.__version__
-#release = tweezepy.__version__
+version = tweezepy.__version__
+release = tweezepy.__version__
 
 
 # -- General configuration ---------------------------------------------------
@@ -33,13 +33,19 @@ author = 'Ian L. Morgan'
 # ones.
 extensions = ["sphinx.ext.autodoc",
               "sphinx.ext.intersphinx",
-              "sphinx.ext.mathjax",
               "sphinx.ext.napoleon",
-              "nbsphinx"]
+              "sphinx.ext.mathjax",
+              "nbsphinx",
+              ]
+
+#source_suffix = {
+#                ".rst":"restructuredtext",
+#                ".ipynb":"myst-nb",
+#}
 master_doc = "index"
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+#templates_path = ['_templates']
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -53,6 +59,9 @@ exclude_patterns = ["_build"]
 # a list of builtin themes.
 #
 html_theme = 'sphinx_book_theme'
+html_copy_source = True
+html_show_sourcelink = True
+html_sourcelink_suffix = ""
 html_title = 'Tweezepy'
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -73,3 +82,4 @@ html_theme_options = {
     "use_download_button": True,
 }
 html_baseurl = "https://tweezepy.readthedocs.io/en/latest/"
+jupyter_execute_notebooks = "force"
