@@ -13,7 +13,7 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-import tweezepy
+#import tweezepy
 
 # -- Project information -----------------------------------------------------
 
@@ -22,8 +22,8 @@ copyright = '2021, Ian L. Morgan'
 author = 'Ian L. Morgan'
 
 # The full version, including alpha/beta/rc tags
-version = tweezepy.__version__
-release = tweezepy.__version__
+#version = tweezepy.__version__
+#release = tweezepy.__version__
 
 
 # -- General configuration ---------------------------------------------------
@@ -65,7 +65,7 @@ html_theme_options = {
     "repository_branch": "master",
     "launch_buttons": {
         "binderhub_url": "https://mybinder.org",
-        "notebook_interface": "jupyterlab",
+        "notebook_interface": "classic",
     },
     "use_edit_page_button": True,
     "use_issues_button": True,
@@ -73,4 +73,3 @@ html_theme_options = {
     "use_download_button": True,
 }
 html_baseurl = "https://tweezepy.readthedocs.io/en/latest/"
-jupyter_execute_notebooks = "off"
