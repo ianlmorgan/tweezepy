@@ -1,8 +1,10 @@
 """
 This module include functions for running bead trajectory simulations.
+
 """
 import numpy as np
 from numba import jit
+
 @jit(nopython=True) # speeds up certain types of code
 def simulate_trace(gamma = 1.e-5,
                    kappa = None,
@@ -10,9 +12,30 @@ def simulate_trace(gamma = 1.e-5,
                    sim_points = 10240,
                    seed = None):
     """Takes parameters and gives a simulated bead trajectory.
+
     .. math::
-        dx = \frac{dt}{\alpha}\left(\sqrt{\frac{2\alpha k_BT}{dt}} F_L-\kappa x_{i-1}\right) \\
+        \Delta x = \\frac{\Delta t}{\\alpha}\left(\sqrt{\\frac{2\\alpha k_BT}{dt}} F_L-\\kappa x_{i-1}\\right)
+    .. math:: 
         x_i = x_{i-1}+dx
+
+    Parameters
+    ----------
+    gamma : float, optional
+        Stokes dissipation in pNs/nm^2, by default 1.e-5
+    kappa : float, optional
+        Spring constant in pN/nm, by default None
+    fsim : int, optional
+        Simulation frequency in Hz, by default 100
+    sim_points : int, optional
+        Number of bead positions, by default 10240
+    seed : int, optional
+        Random seed, by default None
+    
+    Returns
+    -------
+    xtrace : array
+        Array of bead positions.
+
     """
     if seed != None:
         np.random.seed(seed)
@@ -55,6 +78,7 @@ def downsampled_trace(gamma = 1.e-5,
     -------
     xtrace_ds : numpy.array
         Array of bead positions.
+
     """
     bin_size = 1000 # points to average when downsampling
     fsim = int(bin_size*fsample) # simulation frequency
@@ -63,4 +87,3 @@ def downsampled_trace(gamma = 1.e-5,
     bins = xtrace.reshape((N,bin_size)) # reshape into bins 
     xtrace_ds = np.mean(bins,axis=1) # average bins to produce downsampled trace
     return xtrace_ds
-

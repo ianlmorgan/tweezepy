@@ -31,8 +31,11 @@ release = '1.1.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.autodoc',
-              'sphinx.ext.mathjax']
-
+              'sphinx.ext.mathjax',
+              'sphinx.ext.napoleon',
+              'nbsphinx',
+              'myst_parser']
+master_doc = "index"
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -57,7 +60,11 @@ html_static_path = ['_static']
 html_theme_options = {
     "path_to_docs": "docs",
     "repository_url": "https://github.com/ianlmorgan/tweezepy",
-    "repository_branch": "main",
+    "repository_branch": "master",
+    "launch_buttons": {
+        "binderhub_url": "https://mybinder.org",
+        "notebook_interface": "jupyterlab",
+    },
     "use_edit_page_button": True,
     "use_issues_button": True,
     "use_repository_button": True,

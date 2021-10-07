@@ -25,19 +25,24 @@ from tweezepy.expressions import aliasPSD,lansdorpPSD,SMMAV
 class calibration(MLEfit):
     """
     Base class for PSD and AV calibration.
+    
+    Parameters
+    ----------
+    trace : array
+        1-D array of bead positions in nm
+    fsample : float
+        Sampling frequency in Hz
+
+    Attributes
+    ----------
+    trace : array
+        1-D array of bead positions in nm
+    fsample : float
+        Sampling frequency in Hz
     """
     def __init__(self,trace,fsample):
-        """
-        Parameters
-        ----------
-        trace : numpy.array
-            1-D array of bead positions
-        fsample : float
-            Sampling frequency in Hz
-        """
         self.trace = trace
         self.fsample = fsample
-
     def plot(self, 
              fig = None,
              fig_kwgs={},
@@ -67,7 +72,7 @@ class calibration(MLEfit):
 
         Returns
         -------
-        fig,ax : Figure, Axes
+        fig, ax : Figure, Axes
             Figure and axes objects.
         """
         try:
@@ -101,9 +106,11 @@ class calibration(MLEfit):
                 ax[1].plot(data['x'],data['residuals'])
                 ax[1].set_xscale('log')
                 ax[0].get_xaxis().set_ticklabels([])       
-        return fig,ax
-
-    def make_guess(self, kT = 4.1, viscosity = 8.94e-10, radius = 530):
+        return fig, ax
+    def make_guess(self, 
+                   kT = 4.1,
+                   viscosity = 8.94e-10,
+                   radius = 530):
         """
         Estimate gamma based on Stokes drag and kappa based on equipartition theorem.
 
@@ -167,61 +174,48 @@ class calibration(MLEfit):
         self.guess = guess
         MLEfit.__init__(self, pedantic = self.pedantic, scale_covar = self.scale_covar, **kwargs)
 
-
 class AV(calibration):
     """
-    A class for computing and fitting the Allan variance using MLE.
+    A class for computing and fitting the Allan variance using maximum likelihood estimation.
 
     Parameters
     ----------
-    calibration : class
-        Base class with utility functions.
+    trace : array
+        Bead trajectory in nm.
+    fsample : float
+        Sampling frequency in Hz.
+    taus : str, optional
+        Tau interval sampling. Options are 'octave', 'decade', and 'all', by default 'octave'
+    mode : str, optional
+        Allan variance type, either 'avar', 'oavar', and 'totvar', by default 'oavar'
+    edf : str, optional
+        Equivalent degrees of freedom for AV. Options are 'real' and 'approx', by default 'real'
 
-    :Example:
-        ::
+    Raises
+    ------
+    AssertionError
+        If taus, mode, or edf is not recognized.
 
-            from tweezepy.simulations import downsampled_trace
-            # Simulate sample data
-            trace = downsampled_trace()
-            # Compute overlapping AV
-            av = AV(trace,fsample = 100)
-            # Perform MLE fit
-            av.mlefit()
-            print(av.results)
+    Examples
+    --------
+    >>> from tweezepy import downsampled_trace
+    >>> trace = downsampled_trace() # Simulate sample data in nm
+    >>> av = AV(trace,fsample = 100) # Compute overlapping AV
+    >>> av.mlefit() # Perform MLE fit
+    >>> print(av.results)
     """
+
     def __init__(self, trace, fsample,taus = 'octave',mode = 'oavar',edf='real'):
-        """
-        Computes AV values.
-
-        Parameters
-        ----------
-        trace : array-like
-            Bead trajectory.
-        fsample : float
-            Sampling frequency.
-        taus : str, optional
-            Tau interval sampling, by default 'octave'
-        mode : str, optional
-            Allan variance type, either 'avar', 'oavar', and 'totvar', by default 'oavar'
-        edf : str, optional
-            Equivalent degrees of freedom for AV, by default 'real'
-
-        Raises
-        ------
-        ValueError
-            [description]
-        """
         calibration.__init__(self,trace,fsample)
-        if not mode in ['avar','oavar','totvar']:
-            raise RuntimeError('taus should be avar, oavar, or totvar.')
+        assert taus in ['all','octave','decade'], "taus must be either all, octave, or decade."
+        assert mode in ['avar','oavar','totvar'], "mode must be either avar, oavar, or totvar."
+        assert edf in ['real','approx'], "edf must be either real or approx."
         if mode == 'avar':
             taus, edfs, oavs = avar(trace, rate = fsample, taus = taus,edf=edf)
         elif mode == 'oavar':
             taus, edfs, oavs = avar(trace, rate = fsample, taus = taus,edf=edf,overlapping = True)
         elif mode == 'totvar':
             taus, edfs, oavs = totvar(trace, rate = fsample, taus = taus,edf=edf)
-        else:
-            raise ValueError('%s is not a valid mode.'%mode)
         self.x = taus
         self.y = oavs
         self.shape = edfs/2
@@ -233,7 +227,6 @@ class AV(calibration):
                      'y':self.y,
                      'yerr':self.yerr}
         self.data_init = self.data.copy()
-    
     def plot(self,
              fig = None,
              fig_kwgs = {},
@@ -262,20 +255,21 @@ class AV(calibration):
 
         Returns
         -------
-        fig,ax : Figure, Axes
-            Figure and axes objects.
+        fig : Figure
+            The figure object.
+        ax : Axes
+            The axes object.
         """
-        """
-        Plot av data and fit (if applicable).
-
-        Returns:
-            **kwargs: Extra named parameters to send to errorbar.
-        """
-        fig,ax = calibration.plot(self)
+        fig,ax = calibration.plot(self,
+                                  fig = fig,
+                                  fig_kwgs=fig_kwgs,
+                                  ax_fit_kwgs=ax_fit_kwgs,
+                                  ax_res_kwgs=ax_res_kwgs,
+                                  data_label=data_label,
+                                  fit_label=fit_label)
         ax[-1].set_xlabel(r'$\tau$ (s)')
         ax[0].set_ylabel(r'$\sigma_{AV}^2$ (nm$^2$)')
-        return fig,ax
-    
+        return fig, ax
     def mlefit(self, 
                fitfunc = 'SMMAV', 
                cutoffs = [-np.inf,np.inf],
@@ -320,12 +314,7 @@ class AV(calibration):
         **kwargs
             keyword arguments passed to scipy's minimizer
 
-        Returns
-        -------
-        MLE fit results 
-            Returns AV class object with MLE fit results
         """
-        self.fitfunc = fitfunc
         self.cutoffs = cutoffs
         self.tracking_error = tracking_error
         self.guess = guess
@@ -358,40 +347,32 @@ class AV(calibration):
             func = fitfunc
             if not guess:
                 raise RuntimeError("User-provided function requires initial parameter guesses.")
-        self.func = func
+        self.func = func #: analytical function to fit to
         calibration.mlefit(self,**kwargs)
         
 class PSD(calibration,MLEfit):
     """
-    Class for PSD calibration.
+    A class for computing and fitting the power spectral density using maximum likelihood estimation.
 
     Parameters
-    ---------- 
-        calibration (base class): Base class with shared methods
+    ----------
+    trace : array
+        Bead positions in nm.
+    fsample : float
+        Sampling frequency in Hz
+    bins : int, optional
+        Number of bins, by default 3
 
-    :Example:
-        ::
-
-            from tweezepy.simulations import downsampled_trace
-            # Simulate sample data
-            trace = downsampled_trace()
-            # Compute PSD using Welch's method
-            psd = PSD(trace,fsample = 100)
-            # Perform MLE fit
-            psd.mlefit()
-            print(psd.results)
+    Example
+    -------
+    >>> from tweezepy import downsampled_trace            
+    >>> trace = downsampled_trace() # Simulate sample data
+    >>> psd = PSD(trace,fsample = 100) # Compute PSD using Welch's method
+    >>> psd.mlefit() # Perform MLE fit
+    >>> print(psd.results)
     """
+
     def __init__(self, trace, fsample,bins=3,**kwargs):
-        """
-        Parameters
-        ----------
-        trace : np.array
-            Bead positions in nm.
-        fsample : float
-            Sampling frequency in Hz
-        bins : int, optional
-            Number of bins, by default 3
-        """
         calibration.__init__(self, trace, fsample)
         N = len(trace)
         nperseg = (2.*N)/(bins+1)
@@ -410,7 +391,6 @@ class PSD(calibration,MLEfit):
                      'y':self.y,
                      'yerr':self.yerr}
         self.data_init = self.data.copy()
-
     def plot(self,
              fig = None,
              fig_kwgs = {},
@@ -437,10 +417,18 @@ class PSD(calibration,MLEfit):
 
         Returns
         -------
-        fig,ax : Figure, Axes
-            Figure and axes objects.
+        fig : Figure
+            The figure object.
+        ax : Axes
+            The axes object.
         """
-        fig,ax = calibration.plot(self)     
+        fig,ax = calibration.plot(self,
+                                  fig = fig,
+                                  fig_kwgs=fig_kwgs,
+                                  ax_fit_kwgs=ax_fit_kwgs,
+                                  ax_res_kwgs=ax_res_kwgs,
+                                  data_label=data_label,
+                                  fit_label=fit_label)    
         ax[-1].set_xlabel(r'$f$ (Hz)')
         ax[0].set_ylabel(r'PSD (nm$^2$/Hz)')
         return fig,ax
@@ -485,6 +473,7 @@ class PSD(calibration,MLEfit):
             Bead radius for inital parameter guesses, by default 530.
 
         """
+        self.fitfunc = fitfunc
         self.cutoffs = cutoffs
         self.tracking_error = tracking_error
         self.guess = guess

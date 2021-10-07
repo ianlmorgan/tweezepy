@@ -1,7 +1,7 @@
 """
 This module performs operations associated with calculating the Allan variance. 
 
-Adapted from allantools https://github.com/aewallin/allantools
+Adapted from allantools https://github.com/aewallin/allantools.
 """
 
 import numpy as np
@@ -10,7 +10,7 @@ import scipy
 from warnings import warn
 
 def m_generator(N,taus = 'octave'):
-    """
+    """ 
     Generates averaging factor for calculating Allan variance.
 
     Parameters
@@ -52,27 +52,37 @@ def calc_avar(phase,rate,mj,step):
 
 def avar(data,rate = 1.0,taus = 'octave', overlapping = True, edf = 'approx'):
     """
-    Calculate standard allan variance 
-    Takes an array of bead positions.
-    Returns the taus, edfs, and oavs.
+    Calculates the standard and overlapping Allan variance.
+    Takes an array of bead positions. Returns the taus, edfs, and oavs.
+
+    .. math::
+        \\sigma^2_{AV}(m\\tau_0) = { 1 \\over 2 (m \\tau_s )^2 (N-2m+1) }
+        \\sum_{n=0}^{N-2m} ( {z}_{n+2m} - 2z_{n+1m} + z_{n} )^2
+
+    where :math:`z_n=0` and `n=1,\ldots,N`
+    
+    ..math::
+        z_n = \\tau_s \\sum_{j=1}^{j-1} x_j 
+
+    where :math:`\\sigma^2_x(m\\tau_s)` is the Allan variance at an averaging time of :math:`\\tau=m\\tau_s`, and :math:`x_j` is the time-series of bead positions, spaced by the measurement interval :math:`\\tau_s`, with length :math:`N`.
 
     Parameters
     ----------
-    data : array, series, or list
-        1-D array of numbers.
+    data : array-like
+        1-D array of bead positions in nm.
     rate : float
-        Frequency of acquisition.
+        Frequency of acquisition in Hz.
 
     Returns
     -------
     (taus,edfs,oavs) : tuple
-        Array of computed values.
+        Tuple of computed values.
     taus : array
         Observation times.
     edfs : array
         Equivalent degrees of freedom.
     oavs : array
-        Allan variance.
+        Computed Allan variance for each tau value.
     """
     assert type(overlapping) == bool, 'overlapping keyword argument should be a boolean.'
     assert edf in ['approx','real'], 'edf keyword argument should be approx or real.'
@@ -112,20 +122,21 @@ def avar(data,rate = 1.0,taus = 'octave', overlapping = True, edf = 'approx'):
 def totvar(data, rate=1.0, taus='octave',edf = 'approx'):
     """ Total variance.
         Better confidence at long averages for Allan variance.
+
     .. math::
-        \\sigma^2_{TOTDEV}( m\\tau_0 ) = { 1 \\over 2 (m\\tau_0)^2 (N-2) }
-            \\sum_{i=2}^{N-1} ( {x}^*_{i-m} - 2x^*_{i} + x^*_{i+m} )^2
-    where :math:`x^*_i` is a new time-series of length :math:`3N-4`
-    derived from the original phase time-series :math:`x_n` of
-    length :math:`N` by reflection at both ends.
+        \\sigma^2_{AV}( m\\tau_s ) = { 1 \\over 2 (m\\tau_s)^2 (N-2) }
+            \\sum_{n=2}^{N-1} ( {x}^*_{n-m} - 2x^*_{j} + x^*_{n+m} )^2
+
+    where :math:`x^*_n` is a new time-series of length :math:`3N-4` derived from the original time-series :math:`x_n` of length :math:`N` by reflection at both ends.
+
     Parameters
     ----------
     data: np.array
-        Bead positions.
+        Bead positions in nm.
     rate: float
-        The sampling rate for phase or frequency, in Hz
-    taus: np.array
-        Array of tau values for which to compute measurement
+        The sampling rate for the bead positions in Hz.
+    taus: str or np.array
+        Taus spacing, options are decade, octave, or all. Alternatively, an array of tau values can be given directly.
     
     Returns
     -------
@@ -137,6 +148,13 @@ def totvar(data, rate=1.0, taus='octave',edf = 'approx'):
         Equivalent degrees of freedom.
     tvars : np.array
         Total variances.
+
+    References
+    ----------
+    Total variance as an exact analysis of the sample variance
+    Percival, D.B and Howe, D.A.
+    Proccedings of the 1995 IEEE International Frequency Control Symposium
+    https://doi.org/10.1109/FREQ.1995.483917
     """
     rate = float(rate)
     data = np.asarray(data) # make sure data is an array, not a series or list
@@ -259,7 +277,8 @@ def noise_id(x,af, dmin = 0, dmax = 2):
             
 def edf_greenhall(alpha, d, m, N,
                   overlapping=False, modified=False, verbose=False):
-    """ returns Equivalent degrees of freedom - couresy of allantools
+    """ Returns equivalent degrees of freedom
+        
         Parameters
         ----------
         alpha: int
@@ -278,10 +297,12 @@ def edf_greenhall(alpha, d, m, N,
             True for oadev, ohdev
         modified: bool
             True for mdev, tdev
+
         Returns
         -------
         edf: float
             Equivalent degrees of freedom
+        
         References
         ----------
         Greenhall, Riley, 2004
@@ -550,6 +571,7 @@ def edf_totdev(N, m, alpha):
 def edf_simple(N, m, alpha, pedantic = False):
     """Equivalent degrees of freedom.
     Simple approximate formulae.
+
     Parameters
     ----------
     N : int
@@ -565,16 +587,17 @@ def edf_simple(N, m, alpha, pedantic = False):
         'rf' returns random walk frequency noise.   alpha=-2
         If the input is not recognized, it defaults to idealized, uncorrelated
         noise with (N-1) degrees of freedom.
+
     Returns
     -------
     edf : float
         Equivalent degrees of freedom
-    Notes
-    -----
+
+    References
+    ----------
        S. Stein, Frequency and Time - Their Measurement and
        Characterization. Precision Frequency Control Vol 2, 1985, pp 191-416.
        http://tf.boulder.nist.gov/general/pdf/666.pdf
-       
     
     """
 
@@ -618,7 +641,6 @@ def edf_simple(N, m, alpha, pedantic = False):
 def edf_approx(N,mj):
     """
     Approximate edf based on the number of nonoverlapping bins.
-    From Lansdorp and Saleh (2012)
 
     Parameters
     ----------
@@ -629,8 +651,15 @@ def edf_approx(N,mj):
 
     Returns
     -------
-    edf : float
+    edf : int
         Equivalent degrees of freedom
+
+    References
+    ----------
+    Power spectrum and Allan variance methods for calibrating single-molecule video-tracking instruments
+    Lansdorp, B.M. and Saleh, O.A.
+    Review of Scientific Instruments (2012)
+    https://doi.org/10.1063/1.3687431
     """
     edf = N//mj - 1
     return edf

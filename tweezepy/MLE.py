@@ -14,31 +14,16 @@ class MCMC:
     """
     Monte Carlo sampler class.
 
-    :Example:
-        ::
-
-            from tweezepy import AV,downsampled_trace
-            trace = downsampled_trace
-            av = AV(trace, 100)
-            av.mlefit()
-            av.mcmc()
-            av.sample_plot()
-            av.corner_plot()
-    
+    Parameters
+    ----------
+    walkers : int, optional
+        Number of walkers, by default 32
+    steps : int, optional
+        Number of steps, by default 1600
+    progress : bool, optional
+        Print progress bar, by default True
     """
     def __init__(self, walkers = 32, steps = 1600, progress = True,**kwargs):
-        """
-        Monte Carlo sampler
-
-        Parameters
-        ----------
-        walkers : int, optional
-            Number of walkers, by default 32
-        steps : int, optional
-            Number of steps, by default 1600
-        progress : bool, optional
-            Print progress bar, by default True
-        """
         try:
             import emcee
         except ImportError:
@@ -75,8 +60,10 @@ class MCMC:
 
         Returns
         -------
-        (fig, axes) : tuple
-            Figure and axes objects.
+        fig : Figure
+            Figure object.
+        axes : Axes
+            Axes object.
         """
         try:
             import matplotlib.pyplot as plt
@@ -114,6 +101,11 @@ class MCMC:
             Number of "burn-in" steps to discard, by default 100
         thin : int, optional
             N, by default 10
+        
+        Return
+        ------
+        errors : array
+            Errors from Monte Carlo sampling.
         """
         tau = max(self.autocorr_time)
 
@@ -144,8 +136,10 @@ class MCMC:
 
         Returns
         -------
-        fig,ax
-            Figure and axes objects.
+        fig : Figure
+            Figure object.
+        axes : Axes
+            Axes object.
         """
         try:
             import corner
@@ -179,28 +173,47 @@ class MCMC:
 class MLEfit(MCMC):
     """
     Perform maximum likelihood estimation and uncertainty calculations.
+
+    Parameters
+    ----------
+    pedantic : bool, optional
+        Ignore unhelpful warnings, by default True
+    scale_covar : bool, optional
+        Whether to scale standard errors by reduced chi-squared, by default False
+    fit_kwargs : dict, optional
+        Fitting keywork arguments to send to scipy.minimize, by default {'method':'Nelder-Mead'}
+    
+    Attributes
+    ----------
+    names : list
+        Fit function parameter names.
+    results : dictionary
+        Dictionary of results.
+    params : array
+        Parameter values.
+    std_errors : array
+        Parameter uncertainties.
+    chi2 : float
+        Chi-squared value.
+    redchi2 : float
+        Reduced chi-squared value.
+    AIC : float 
+        Akaike information criterion. 
+    AICc : float 
+        Corrected Akaike information criterion. 
     """
     def __init__(self, pedantic = True, scale_covar = False,fit_kwargs = {'method':'Nelder-Mead'}):
-        """
-        Parameters
-        ----------
-        pedantic : bool, optional
-            Ignore unhelpful warnings, by default True
-        scale_covar : bool, optional
-            Whether to scale standard errors by reduced chi-squared, by default False
-        fit_kwargs : dict, optional
-            Fitting keywork arguments to send to scipy.minimize, by default {'method':'Nelder-Mead'}
-        """
         if pedantic == False:
             np.seterr('warn')
         elif pedantic == True:
             np.seterr('ignore')
         # Fancy way of determining fit param names        
         names = signature(self.func).parameters # inspect fit function parameters
-        self.names = list(names.keys()); # make list of parameter names
+        self.names = list(names.keys()) # make list of parameter names
         # Data
-        data = self.data
-        shape,y,yerr = data['shape'],data['y'],data['yerr']
+        shape = self.data['shape']
+        y = self.data['y']
+        yerr = self.data['yerr']
         self.ndata = len(y)
         # Log likelihood
         self.gd = Gamma_Distribution(shape,y)
@@ -230,7 +243,7 @@ class MLEfit(MCMC):
         self.std_errors = np.sqrt(np.diag(self.cov))
         # Calculate fit values
         yfit = self.func(*self.params); 
-        self.fit_data = data.copy()
+        self.fit_data = self.data.copy()
         self.data['yfit'] = yfit
         # Calculate residuals, chi2, and reduced chi2
         residuals = (y-yfit)/yerr; self.residuals = residuals
@@ -284,37 +297,128 @@ class MLEfit(MCMC):
             self.results['%s_mcmc_error'%name] = 0.5 * (std_u - std_l)
 
 class Gamma_Distribution:
-    """
-    Gamma probability distribution for AV and PSD.
+    """Gamma probability distribution class.
+
+    Parameters
+    ----------
+    shape : np.array
+        Shape parameter.
+    yhat : np.array
+        Experimental values. 
+    
+    Attributes
+    ----------
+    shape : array-like
+        Shape parameters.
+    yhat : array-like
+        Experimnetal values
     """
     def __init__(self,shape,yhat):
-        """
-        Parameters
-        ----------
-        shape : np.array
-            Shape parameter.
-        yhat : np.array
-            Experimental values. 
-        """
         self.yhat = yhat
         self.shape = shape
     def scale(self,ytrue):
+        """ Calculate scale parameters.
+        
+        Parameters
+        ----------
+        ytrue : array-like
+            True/theoretical values.
+
+        Returns
+        -------
+        scale : array-like
+            Scale parameters.
+        """
         return ytrue/self.shape 
     def std(self,ytrue):
+        """ Calculate standard deviation.
+
+        Parameters
+        ----------
+        ytrue : array-like
+            True/theoretical values.
+
+        Returns
+        -------
+        std : array-like
+            Standard deviations.
+        """
         scale = self.scale(ytrue)
         return stats.gamma.std(self.shape, scale = scale)
     def pdf(self,ytrue):
+        """ Calculate probability distribution function.
+
+        Parameters
+        ----------
+        ytrue : array-like
+            True/theoretical values.
+
+        Returns
+        -------
+        pdf : callable
+            Probability distribution function.
+        """
         scale = self.scale(ytrue)
         return gamma.pdf(self.yhat/scale,self.shape)/scale
     def logpdf(self,ytrue):
+        """ Log of the probability distribution function.
+
+        Parameters
+        ----------
+        ytrue : array-like
+            True/theoretical values.
+
+        Returns
+        -------
+        logpdf : callable
+            Log of the probability distribution function.
+        """
         scale = self.scale(ytrue)
         return gamma.logpdf(self.yhat/scale,self.shape) - np.log(scale)
     def cdf(self,ytrue):
+        """ Cumulative distribution function.
+
+        Parameters
+        ----------
+        ytrue : array-like
+            True/theoretical values.
+
+        Returns
+        -------
+        cdf : callable
+            Cumulative distribution function.
+        """
         scale = self.scale(ytrue)
         return stats.gamma.cdf(self.yhat,self.shape,scale=scale)
     def logcdf(self, ytrue):
+        """ Log of cumulative distribution function.
+
+        Parameters
+        ----------
+        ytrue : array-like
+            True/theoretical values.
+
+        Returns
+        -------
+        logcdf : callable
+            Log of cumulative distribution function.
+        """
         scale = self.scale(ytrue)
         return gamma.logcdf(self.yhat,self.shape,scale = scale)
     def interval(self,ytrue,alpha = 0.95):
+        """
+
+        Parameters
+        ----------
+        ytrue : array-like
+            True/theoretical values.
+        alpha : float, optional
+            Probability that a random variable will be drawn from the returned range. Each value should be in the range [0, 1]., by default 0.95
+
+        Returns
+        -------
+        Interval : callable
+            Endpoints of the range that contains fraction alpha [0, 1] of the distribution.
+        """
         scale = self.scale(ytrue)
         return stats.gamma.interval(alpha,self.shape,scale = scale)
