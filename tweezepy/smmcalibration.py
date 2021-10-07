@@ -241,7 +241,7 @@ class AV(calibration):
         Parameters
         ----------
         fig : Figure, optional
-            Matplotlibe Figure object, by default None
+            Matplotlib Figure object, by default None
         fig_kwgs : dict, optional
             Figure keyword arguments, by default {}
         ax_fit_kwgs : dict, optional

@@ -37,6 +37,7 @@ extensions = ["sphinx.ext.autodoc",
               "sphinx.ext.napoleon",
               "nbsphinx"]
 master_doc = "index"
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
