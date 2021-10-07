@@ -31,11 +31,11 @@ release = tweezepy.__version__
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',
-              'sphinx.ext.mathjax',
-              'sphinx.ext.napoleon',
-              'nbsphinx',
-              'myst_parser']
+extensions = ["sphinx.ext.autodoc",
+              "sphinx.ext.intersphinx",
+              "sphinx.ext.mathjax",
+              "sphinx.ext.napoleon",
+              "nbsphinx"]
 master_doc = "index"
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -72,3 +72,4 @@ html_theme_options = {
     "use_download_button": True,
 }
 html_baseurl = "https://tweezepy.readthedocs.io/en/latest/"
+jupyter_execute_notebooks = "off"
