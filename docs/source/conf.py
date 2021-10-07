@@ -13,7 +13,7 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-
+import tweezepy
 
 # -- Project information -----------------------------------------------------
 
@@ -22,7 +22,8 @@ copyright = '2021, Ian L. Morgan'
 author = 'Ian L. Morgan'
 
 # The full version, including alpha/beta/rc tags
-release = '1.1.0'
+version = tweezepy.__version__
+release = tweezepy.__version__
 
 
 # -- General configuration ---------------------------------------------------
@@ -42,7 +43,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ["_build"]
 
 
 # -- Options for HTML output -------------------------------------------------
