@@ -13,7 +13,12 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-import tweezepy
+from pkg_resources import DistributionNotFound,get_distribution
+
+try:
+    __version__ = get_distribution("tweezepy").version
+except DistributionNotFound:
+    __version__ = "unknown version"
 
 # -- Project information -----------------------------------------------------
 
@@ -22,8 +27,8 @@ copyright = '2021, Ian L. Morgan'
 author = 'Ian L. Morgan'
 
 # The full version, including alpha/beta/rc tags
-version = tweezepy.__version__
-release = tweezepy.__version__
+version = __version__
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
