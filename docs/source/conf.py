@@ -47,6 +47,7 @@ extensions = ["sphinx.ext.autodoc",
 #                ".rst":"restructuredtext",
 #                ".ipynb":"nbsphinx",
 #}
+source_suffix = ".rst"
 master_doc = "index"
 
 # Add any paths that contain templates here, relative to this directory.

@@ -11,12 +11,14 @@ python:
    install:
    - requirements: docs/requirements.txt
    - requirements: requirements.txt
-   - method: pip
+   - method: pip # need this for autodocumentation
      path: .
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
    configuration: docs/source/conf.py
+   fail_on_warning: true
+   builder: dirhtml
 
 # Optionally build your docs in additional formats such as PDF
 formats:
