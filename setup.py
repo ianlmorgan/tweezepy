@@ -21,7 +21,8 @@ URL = "https://github.com/ianlmorgan/tweezepy"
 LICENSE = "LGPLv3+"
 INSTALL_REQUIRES = [
                     "numpy>=1.15,<1.20",
-                    "scipy"]
+                    "scipy",
+                    ]
 SETUP_REQUIRES = INSTALL_REQUIRES + [
     "setuptools>=40.6.0",
 ]
