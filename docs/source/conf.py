@@ -82,7 +82,7 @@ html_theme_options = {
     "repository_url": "https://github.com/ianlmorgan/tweezepy",
     "repository_branch": "ian-local",
     "launch_buttons": {
-        "binderhub_url": "https://mybinder.org/v2/gh/ianlmorgan/tweezepy",
+        "binderhub_url": "https://mybinder.org/v2/gh/ianlmorgan/tweezepy/ian-local",
         "notebook_interface": "classic",
     },
     "use_edit_page_button": True,
