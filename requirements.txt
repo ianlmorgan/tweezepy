@@ -1,6 +1,5 @@
 autograd
 emcee
-json
 matplotlib
 numba
 numpy
