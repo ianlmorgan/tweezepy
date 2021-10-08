@@ -22,6 +22,12 @@ LICENSE = "LGPLv3+"
 INSTALL_REQUIRES = [
                     "numpy>=1.15,<1.20",
                     "scipy"]
+SETUP_REQUIRES = INSTALL_REQUIRES + [
+    "setuptools>=40.6.0",
+]
+TESTS_REQUIRE = [
+    "unittest",
+]
 #pkginfo_path = os.path.join(this_directory,
 #                            'tweezepy',
 #                            'tweezepy_info.json')
@@ -39,8 +45,8 @@ setuptools.setup(name=NAME,
                  long_description=long_description,
                  long_description_content_type = 'text/markdown',
                  install_requires = INSTALL_REQUIRES,
-                 setup_requires = ["setuptools>=40.6.0"],
-                 tests_require=['unittest'],
+                 setup_requires = SETUP_REQUIRES,
+                 tests_require=TESTS_REQUIRE,
                  ) 
 
 # This call to setup() does all the work
