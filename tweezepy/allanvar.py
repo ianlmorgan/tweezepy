@@ -56,15 +56,15 @@ def avar(data,rate = 1.0,taus = 'octave', overlapping = True, edf = 'approx'):
     Takes an array of bead positions. Returns the taus, edfs, and oavs.
 
     .. math::
-        \\sigma^2_{AV}(m\\tau_0) = { 1 \\over 2 (m \\tau_s )^2 (N-2m+1) }
+        \\sigma^2_{AV}(\\tau) = { 1 \\over 2 (m \\tau_s )^2 (N-2m+1) }
         \\sum_{n=0}^{N-2m} ( {z}_{n+2m} - 2z_{n+1m} + z_{n} )^2
 
-    where :math:`z_n=0` and `n=1,\ldots,N`
+    where :math:`z_n=0` and `n=1,\\ldots,N`
     
     ..math::
-        z_n = \\tau_s \\sum_{j=1}^{j-1} x_j 
+        z_n = {1 \\over m_k} \\sum_{j=1}^{j-1} x_j 
 
-    where :math:`\\sigma^2_x(m\\tau_s)` is the Allan variance at an averaging time of :math:`\\tau=m\\tau_s`, and :math:`x_j` is the time-series of bead positions, spaced by the measurement interval :math:`\\tau_s`, with length :math:`N`.
+    where :math:`\\sigma^2_x(m\\tau_s)` is the Allan variance at an averaging time of :math:`\\tau=m_k\\tau_s`, and :math:`x_j` is the time-series of bead positions, spaced by the measurement interval :math:`\\tau_s`, with length :math:`N`.
 
     Parameters
     ----------
@@ -656,7 +656,7 @@ def edf_approx(N,mj):
 
     References
     ----------
-    Power spectrum and Allan variance methods for calibrating single-molecule video-tracking instruments
+    Power spectrum and Allan variance methods for calibrating single-molecule video-tracking instruments.
     Lansdorp, B.M. and Saleh, O.A.
     Review of Scientific Instruments (2012)
     https://doi.org/10.1063/1.3687431
