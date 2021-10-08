@@ -78,7 +78,7 @@ html_title = 'Tweezepy'
 # so a file named "default.css" will overwrite the builtin "default.css".
 #html_static_path = ['_static']
 html_theme_options = {
-    "path_to_docs": "docs",
+    "path_to_docs": "docs/source",
     "repository_url": "https://github.com/ianlmorgan/tweezepy",
     "repository_branch": "ian-local",
     "launch_buttons": {
