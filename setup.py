@@ -19,7 +19,9 @@ AUTHOR = "Ian L. Morgan"
 AUTHOR_EMAIL = "ilmorgan@ucsb.edu"
 URL = "https://github.com/ianlmorgan/tweezepy"
 LICENSE = "LGPLv3+"
-
+INSTALL_REQUIRES = [
+                    "numpy>=1.15,<1.20",
+                    "scipy"]
 #pkginfo_path = os.path.join(this_directory,
 #                            'tweezepy',
 #                            'tweezepy_info.json')
@@ -36,10 +38,9 @@ setuptools.setup(name=NAME,
                  packages=setuptools.find_packages(),
                  long_description=long_description,
                  long_description_content_type = 'text/markdown',
-                 install_requires = ['numpy'],
+                 install_requires = INSTALL_REQUIRES,
                  setup_requires = ["setuptools>=40.6.0"],
-                 tests_require=['unittest',
-                                'numpy'],
+                 tests_require=['unittest'],
                  ) 
 
 # This call to setup() does all the work
