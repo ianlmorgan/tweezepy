@@ -80,10 +80,10 @@ html_title = 'Tweezepy'
 html_theme_options = {
     "path_to_docs": "docs/source",
     "repository_url": "https://github.com/ianlmorgan/tweezepy",
-    "repository_branch": "ian-local",
+    "repository_branch": "ian-local", # For testing
     "launch_buttons": {
-        "binderhub_url": "https://mybinder.org/v2/gh/ianlmorgan/tweezepy/ian-local",
-        "notebook_interface": "classic",
+        "binderhub_url": "https://mybinder.org",
+        #"notebook_interface": "classic",
     },
     "use_edit_page_button": True,
     "use_issues_button": True,
