@@ -91,5 +91,5 @@ html_theme_options = {
     "use_repository_button": True,
     "use_download_button": True,
 }
-html_baseurl = "https://tweezepy.readthedocs.io/en/latest/"
-jupyter_execute_notebooks = "force"
+#html_baseurl = "https://tweezepy.readthedocs.io/en/latest/"
+jupyter_execute_notebooks = "off"
