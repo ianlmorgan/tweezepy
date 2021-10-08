@@ -11,9 +11,10 @@ sphinx:
 
 # Explicitly set the version of Python and its requirements
 python:
-   version: 3.8
+   version: "3.8"
    install:
    - requirements: docs/requirements.txt
+   - requirements: requirements.txt
 
 # Optionally build your docs in additional formats such as PDF
 formats:
