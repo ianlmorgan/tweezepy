@@ -78,11 +78,12 @@ html_title = 'Tweezepy'
 # so a file named "default.css" will overwrite the builtin "default.css".
 #html_static_path = ['_static']
 html_theme_options = {
-    "path_to_docs": "docs/source",
+    "path_to_docs": "docs",
     "repository_url": "https://github.com/ianlmorgan/tweezepy",
     "repository_branch": "ian-local", # For testing
     "launch_buttons": {
         "binderhub_url": "https://mybinder.org",
+        "colab_url": "https://colab.research.google.com/",
         #"notebook_interface": "classic",
     },
     "use_edit_page_button": True,
