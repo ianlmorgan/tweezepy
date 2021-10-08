@@ -2,5 +2,5 @@ autograd
 emcee
 matplotlib
 numba
-numpy
+numpy < 1.20, >=1.15
 scipy
