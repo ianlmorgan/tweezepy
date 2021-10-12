@@ -80,6 +80,7 @@ html_title = 'Tweezepy'
 html_theme_options = {
     "path_to_docs": "docs",
     "repository_url": "https://github.com/ianlmorgan/tweezepy",
+    'repository_branch': "master",
     #"repository_branch": "ian-local", # For testing
     "launch_buttons": {
         "binderhub_url": "https://mybinder.org",
@@ -91,5 +92,5 @@ html_theme_options = {
     "use_repository_button": True,
     "use_download_button": True,
 }
-#html_baseurl = "https://tweezepy.readthedocs.io/en/latest/"
-jupyter_execute_notebooks = "off"
+html_baseurl = "https://tweezepy.readthedocs.io/en/latest/"
+#jupyter_execute_notebooks = "off"
