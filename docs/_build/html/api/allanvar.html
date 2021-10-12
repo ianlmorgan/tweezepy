@@ -1,0 +1,529 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Allanvar &#8212; Tweezepy</title>
+    
+  <link href="../_static/css/theme.css" rel="stylesheet" />
+  <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" type="text/css" />
+    
+  <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "tex2jax_ignore|mathjax_ignore|document", "processClass": "tex2jax_process|mathjax_process|math|output_area"}})</script>
+    <link rel="canonical" href="https://tweezepy.readthedocs.io/en/latest/api/allanvar.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="simulations" href="simulations.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Tweezepy</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p class="caption">
+ <span class="caption-text">
+  User Guide
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../install.html">
+   Installation
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Tutorials
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../pages/quickstart.html">
+   Quickstart
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../pages/mcmc.html">
+   Robust Uncertainties
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../pages/simulations.html">
+   Simulating a bead trajectory
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  API
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="smmcalibration.html">
+   smmcalibration
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="MLE.html">
+   MLE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="simulations.html">
+   simulations
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Allanvar
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+<div class="navbar_extra_footer">
+  Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+</div>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="../_sources/api/allanvar.rst"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.rst</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
+    <div class="dropdown-buttons sourcebuttons">
+        <a class="repository-button"
+            href="https://github.com/ianlmorgan/tweezepy"><button type="button" class="btn btn-secondary topbarbtn"
+                data-toggle="tooltip" data-placement="left" title="Source repository"><i
+                    class="fab fa-github"></i>repository</button></a>
+        <a class="issues-button"
+            href="https://github.com/ianlmorgan/tweezepy/issues/new?title=Issue%20on%20page%20%2Fapi/allanvar.html&body=Your%20issue%20content%20here."><button
+                type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip" data-placement="left"
+                title="Open an issue"><i class="fas fa-lightbulb"></i>open issue</button></a>
+        <a class="edit-button" href="https://github.com/ianlmorgan/tweezepy/edit/master/docs/api/allanvar.rst"><button
+                type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip" data-placement="left"
+                title="Edit this page"><i class="fas fa-pencil-alt"></i>suggest edit</button></a>
+    </div>
+</div>
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <div class="section" id="allanvar">
+<span id="id1"></span><h1>Allanvar<a class="headerlink" href="#allanvar" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-tweezepy.allanvar"></span><p>This module performs operations associated with calculating the Allan variance.</p>
+<p>Adapted from allantools <a class="reference external" href="https://github.com/aewallin/allantools">https://github.com/aewallin/allantools</a>.</p>
+<dl class="py function">
+<dt id="tweezepy.allanvar.avar">
+<code class="sig-prename descclassname"><span class="pre">tweezepy.allanvar.</span></code><code class="sig-name descname"><span class="pre">avar</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'octave'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'approx'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tweezepy.allanvar.avar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the standard and overlapping Allan variance.
+Takes an array of bead positions. Returns the taus, edfs, and oavs.</p>
+<div class="math notranslate nohighlight">
+\[\sigma^2_{AV}(m\tau_0) = { 1 \over 2 (m \tau_s )^2 (N-2m+1) }
+\sum_{n=0}^{N-2m} ( {z}_{n+2m} - 2z_{n+1m} + z_{n} )^2\]</div>
+<p>where <span class="math notranslate nohighlight">\(z_n=0\)</span> and <cite>n=1,ldots,N</cite></p>
+<dl class="simple">
+<dt>..math::</dt><dd><p>z_n = tau_s sum_{j=1}^{j-1} x_j</p>
+</dd>
+</dl>
+<p>where <span class="math notranslate nohighlight">\(\sigma^2_x(m\tau_s)\)</span> is the Allan variance at an averaging time of <span class="math notranslate nohighlight">\(\tau=m\tau_s\)</span>, and <span class="math notranslate nohighlight">\(x_j\)</span> is the time-series of bead positions, spaced by the measurement interval <span class="math notranslate nohighlight">\(\tau_s\)</span>, with length <span class="math notranslate nohighlight">\(N\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array-like</em>) – 1-D array of bead positions in nm.</p></li>
+<li><p><strong>rate</strong> (<em>float</em>) – Frequency of acquisition in Hz.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>(taus,edfs,oavs)</strong> (<em>tuple</em>) – Tuple of computed values.</p></li>
+<li><p><strong>taus</strong> (<em>array</em>) – Observation times.</p></li>
+<li><p><strong>edfs</strong> (<em>array</em>) – Equivalent degrees of freedom.</p></li>
+<li><p><strong>oavs</strong> (<em>array</em>) – Computed Allan variance for each tau value.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tweezepy.allanvar.edf_approx">
+<code class="sig-prename descclassname"><span class="pre">tweezepy.allanvar.</span></code><code class="sig-name descname"><span class="pre">edf_approx</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tweezepy.allanvar.edf_approx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Approximate edf based on the number of nonoverlapping bins.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<em>int</em>) – Number of bead trajectory points.</p></li>
+<li><p><strong>mj</strong> (<em>int</em>) – Averaging factor</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>edf</strong> – Equivalent degrees of freedom</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Power spectrum and Allan variance methods for calibrating single-molecule video-tracking instruments
+Lansdorp, B.M. and Saleh, O.A.
+Review of Scientific Instruments (2012)
+<a class="reference external" href="https://doi.org/10.1063/1.3687431">https://doi.org/10.1063/1.3687431</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tweezepy.allanvar.edf_greenhall">
+<code class="sig-prename descclassname"><span class="pre">tweezepy.allanvar.</span></code><code class="sig-name descname"><span class="pre">edf_greenhall</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modified</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tweezepy.allanvar.edf_greenhall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns equivalent degrees of freedom</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>alpha</strong> (<em>int</em>) – noise type, +2…-4</p></li>
+<li><p><strong>d</strong> (<em>int</em>) – 1 first-difference variance
+2 Allan variance
+3 Hadamard variance
+require alpha+2*d&gt;1</p></li>
+<li><p><strong>m</strong> (<em>int</em>) – averaging factor
+tau = m*tau0 = m*(1/rate)</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – number of phase observations (length of time-series)</p></li>
+<li><p><strong>overlapping</strong> (<em>bool</em>) – True for oadev, ohdev</p></li>
+<li><p><strong>modified</strong> (<em>bool</em>) – True for mdev, tdev</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>edf</strong> – Equivalent degrees of freedom</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Greenhall, Riley, 2004
+<a class="reference external" href="https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20050061319.pdf">https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20050061319.pdf</a>
+UNCERTAINTY OF STABILITY VARIANCES BASED ON FINITE DIFFERENCES</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tweezepy.allanvar.edf_simple">
+<code class="sig-prename descclassname"><span class="pre">tweezepy.allanvar.</span></code><code class="sig-name descname"><span class="pre">edf_simple</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pedantic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tweezepy.allanvar.edf_simple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equivalent degrees of freedom.
+Simple approximate formulae.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<em>int</em>) – the number of phase samples</p></li>
+<li><p><strong>m</strong> (<em>int</em>) – averaging factor, tau = m * tau0</p></li>
+<li><p><strong>alpha</strong> (<em>int</em>) – exponent of f for the frequency PSD:
+‘wp’ returns white phase noise.             alpha=+2
+‘wf’ returns white frequency noise.         alpha= 0
+‘fp’ returns flicker phase noise.           alpha=+1
+‘ff’ returns flicker frequency noise.       alpha=-1
+‘rf’ returns random walk frequency noise.   alpha=-2
+If the input is not recognized, it defaults to idealized, uncorrelated
+noise with (N-1) degrees of freedom.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>edf</strong> – Equivalent degrees of freedom</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>S. Stein, Frequency and Time - Their Measurement and
+Characterization. Precision Frequency Control Vol 2, 1985, pp 191-416.
+<a class="reference external" href="http://tf.boulder.nist.gov/general/pdf/666.pdf">http://tf.boulder.nist.gov/general/pdf/666.pdf</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tweezepy.allanvar.edf_totdev">
+<code class="sig-prename descclassname"><span class="pre">tweezepy.allanvar.</span></code><code class="sig-name descname"><span class="pre">edf_totdev</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tweezepy.allanvar.edf_totdev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equivalent degrees of freedom for Total Deviation
+NIST SP1065 page 41, Table 7</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tweezepy.allanvar.greenhall_BasicSum">
+<code class="sig-prename descclassname"><span class="pre">tweezepy.allanvar.</span></code><code class="sig-name descname"><span class="pre">greenhall_BasicSum</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">J</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">S</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">F</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tweezepy.allanvar.greenhall_BasicSum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Eqn (10) from Greenhall2004</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tweezepy.allanvar.greenhall_sw">
+<code class="sig-prename descclassname"><span class="pre">tweezepy.allanvar.</span></code><code class="sig-name descname"><span class="pre">greenhall_sw</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tweezepy.allanvar.greenhall_sw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Eqn (7) from Greenhall2004</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tweezepy.allanvar.greenhall_sx">
+<code class="sig-prename descclassname"><span class="pre">tweezepy.allanvar.</span></code><code class="sig-name descname"><span class="pre">greenhall_sx</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">F</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tweezepy.allanvar.greenhall_sx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Eqn (8) from Greenhall2004</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tweezepy.allanvar.greenhall_sz">
+<code class="sig-prename descclassname"><span class="pre">tweezepy.allanvar.</span></code><code class="sig-name descname"><span class="pre">greenhall_sz</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">F</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tweezepy.allanvar.greenhall_sz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Eqn (9) from Greenhall2004</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tweezepy.allanvar.greenhall_table1">
+<code class="sig-prename descclassname"><span class="pre">tweezepy.allanvar.</span></code><code class="sig-name descname"><span class="pre">greenhall_table1</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tweezepy.allanvar.greenhall_table1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Table 1 from Greenhall 2004</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tweezepy.allanvar.greenhall_table2">
+<code class="sig-prename descclassname"><span class="pre">tweezepy.allanvar.</span></code><code class="sig-name descname"><span class="pre">greenhall_table2</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tweezepy.allanvar.greenhall_table2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Table 2 from Greenhall 2004</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tweezepy.allanvar.greenhall_table3">
+<code class="sig-prename descclassname"><span class="pre">tweezepy.allanvar.</span></code><code class="sig-name descname"><span class="pre">greenhall_table3</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tweezepy.allanvar.greenhall_table3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Table 3 from Greenhall 2004</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tweezepy.allanvar.m_generator">
+<code class="sig-prename descclassname"><span class="pre">tweezepy.allanvar.</span></code><code class="sig-name descname"><span class="pre">m_generator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'octave'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tweezepy.allanvar.m_generator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates averaging factor for calculating Allan variance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<em>int</em>) – Number of points in trajectory</p></li>
+<li><p><strong>taus</strong> (<em>str</em><em>, </em><em>optional</em>) – Type of sampling, by default ‘octave’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>m</strong> – Averaging factor.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tweezepy.allanvar.noise_id">
+<code class="sig-prename descclassname"><span class="pre">tweezepy.allanvar.</span></code><code class="sig-name descname"><span class="pre">noise_id</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">af</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tweezepy.allanvar.noise_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lag1 autocorrelation algorithm for determining powerlaw noise type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numpy.array</em>) – trace</p></li>
+<li><p><strong>af</strong> (<em>int</em>) – averaging factor</p></li>
+<li><p><strong>dmin</strong> (<em>int</em><em>, </em><em>optional</em>) – minimum number of differentiations, by default 0</p></li>
+<li><p><strong>dmax</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of differentiations, by default 2</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>(alpha_int,alpha)</strong> (<em>tuple</em>) – [description]</p></li>
+<li><p><strong>alpha_int</strong> (<em>int</em>) – integer power-law noise</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – float power-law noise</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Power law noise identification using the lag 1 autocorrelation
+Riley,W.J. et al.
+18th European Frequency and Time Forum (EFTF 2004)
+<a class="reference external" href="https://ieeexplore.ieee.org/document/5075021">https://ieeexplore.ieee.org/document/5075021</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tweezepy.allanvar.totvar">
+<code class="sig-prename descclassname"><span class="pre">tweezepy.allanvar.</span></code><code class="sig-name descname"><span class="pre">totvar</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'octave'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'approx'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tweezepy.allanvar.totvar" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Total variance.</dt><dd><p>Better confidence at long averages for Allan variance.</p>
+</dd>
+</dl>
+<div class="math notranslate nohighlight">
+\[\sigma^2_{AV}( m\tau_s ) = { 1 \over 2 (m\tau_s)^2 (N-2) }
+    \sum_{n=2}^{N-1} ( {x}^*_{n-m} - 2x^*_{j} + x^*_{n+m} )^2\]</div>
+<p>where <span class="math notranslate nohighlight">\(x^*_n\)</span> is a new time-series of length <span class="math notranslate nohighlight">\(3N-4\)</span> derived from the original time-series <span class="math notranslate nohighlight">\(x_n\)</span> of length <span class="math notranslate nohighlight">\(N\)</span> by reflection at both ends.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>np.array</em>) – Bead positions in nm.</p></li>
+<li><p><strong>rate</strong> (<em>float</em>) – The sampling rate for the bead positions in Hz.</p></li>
+<li><p><strong>taus</strong> (<em>str</em><em> or </em><em>np.array</em>) – Taus spacing, options are decade, octave, or all. Alternatively, an array of tau values can be given directly.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>(taus,edfs,tvars)</strong> (<em>tuple</em>) – Arrays of compute values.</p></li>
+<li><p><strong>taus</strong> (<em>np.array</em>) – Observation times.</p></li>
+<li><p><strong>edfs</strong> (<em>np.array</em>) – Equivalent degrees of freedom.</p></li>
+<li><p><strong>tvars</strong> (<em>np.array</em>) – Total variances.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Total variance as an exact analysis of the sample variance
+Percival, D.B and Howe, D.A.
+Proccedings of the 1995 IEEE International Frequency Control Symposium
+<a class="reference external" href="https://doi.org/10.1109/FREQ.1995.483917">https://doi.org/10.1109/FREQ.1995.483917</a></p>
+</dd></dl>
+
+</div>
+
+
+              </div>
+              
+        
+            
+
+
+
+<div class='prev-next-bottom'>
+    
+    <div id="prev">
+        <a class="left-prev" href="simulations.html" title="previous page">
+            <i class="prevnext-label fas fa-angle-left"></i>
+            <div class="prevnext-info">
+                <p class="prevnext-label">previous</p>
+                <p class="prevnext-title">simulations</p>
+            </div>
+        </a>
+    </div>
+
+</div>
+        
+        </div>
+    </div>
+    <footer class="footer">
+    <div class="container">
+      <p>
+        
+          By Ian L. Morgan<br/>
+        
+            &copy; Copyright 2021, Ian L. Morgan.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>
