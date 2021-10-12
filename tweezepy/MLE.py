@@ -232,7 +232,7 @@ class MLEfit(MCMC):
         self.results = {}
         # Throw warning if fit fails
         if not self.success:
-            print('MLE fitting failed. %s'%self.fit['message'])
+            print('MLE fitting failed to converge. %s'%self.fit['message'])
             #self.params = np.array([float('nan') for i in range(self.nparams)])
             #self.std_errors = np.array([float('nan') for i in range(self.nparams)])
         # Compute standard errors by inverting the Hessian

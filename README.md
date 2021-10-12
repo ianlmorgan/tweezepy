@@ -3,7 +3,10 @@
 
 This is [Tweezepy](https://github.com/ianlmorgan/tweezepy), a Python package for calibrating forces in single-molecule force spectroscopy video-tracking experiments using the power spectral density (PSD) and Allan variance (AV).
 
-# How to install
+## Documentation
+Read the documentation for `Tweezepy` [here](https://tweezepy.readthedocs.io/).
+
+## How to install
 The simplest method of installing the `Tweezepy` package is via the [Python Package Index](https://packaging.python.org/glossary/#term-python-package-index-pypi) (PyPI). To install from PyPI, you will need to be able to run python from the command line and make sure you have [pip](https://packaging.python.org/key_projects/#pip) available.
 
 Install from PyPI:
@@ -17,7 +20,7 @@ Using setuptools:
 
     python setup.py install
     
-# Contents
+## Contents
 The `Tweezepy` package includes the following modules:
 * 'smmcalibration' - classes for calibration methods using the PSD and AV
 * 'expressions' - functions with closed-form expressions for thermal motion in the PSD and AV
@@ -25,7 +28,7 @@ The `Tweezepy` package includes the following modules:
 * 'allanvar' - tools for calculating the AV and equivalent degrees of freedom
 * 'simulations' - tools to simulate bead thermal motion
 
-# Example use:
+## Example use:
 Simulate data:
 ```python
 >>> import matplotlib.pyplot as plt
@@ -57,7 +60,7 @@ Allan variance:
 ```
 <img src="docs/example_AV.png" width="600">
 
-# Jupyter noteboosk with examples
+# Jupyter notebooks with examples
 Jupyter notebooks are interactive Python scripts, embedded in a browser, allowing you to manipulate data and display plots like easily. For guidance on installing jupyter, please refer to https://jupyter.org/install.
 
 See /docs for some examples in notebook format.
