@@ -26,7 +26,7 @@ To install ``Tweezepy``, you should follow the :ref:`install` guide. After you i
 To launch these notebooks in Binder: 
 
 .. image:: https://mybinder.org/badge_logo.svg
-    :target: https://mybinder.org/v2/gh/ianlmorgan/tweezepy/ian-local
+    :target: https://mybinder.org/v2/gh/ianlmorgan/tweezepy/master
 
 .. toctree::
     :maxdepth: 1
