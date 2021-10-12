@@ -1,0 +1,809 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quickstart &#8212; Tweezepy</title>
+    
+  <link href="../_static/css/theme.css" rel="stylesheet" />
+  <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" type="text/css" />
+    
+  <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "tex2jax_ignore|mathjax_ignore|document", "processClass": "tex2jax_process|mathjax_process|math|output_area"}})</script>
+    <link rel="canonical" href="https://tweezepy.readthedocs.io/en/latest/pages/quickstart.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Robust Uncertainties" href="mcmc.html" />
+    <link rel="prev" title="Installation" href="../install.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Tweezepy</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p class="caption">
+ <span class="caption-text">
+  User Guide
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../install.html">
+   Installation
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  Tutorials
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Quickstart
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="mcmc.html">
+   Robust Uncertainties
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="simulations.html">
+   Simulating a bead trajectory
+  </a>
+ </li>
+</ul>
+<p class="caption">
+ <span class="caption-text">
+  API
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../api/smmcalibration.html">
+   smmcalibration
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../api/MLE.html">
+   MLE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../api/simulations.html">
+   simulations
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../api/allanvar.html">
+   Allanvar
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+<div class="navbar_extra_footer">
+  Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+</div>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="../_sources/pages/quickstart.ipynb"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.ipynb</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
+    <div class="dropdown-buttons sourcebuttons">
+        <a class="repository-button"
+            href="https://github.com/ianlmorgan/tweezepy"><button type="button" class="btn btn-secondary topbarbtn"
+                data-toggle="tooltip" data-placement="left" title="Source repository"><i
+                    class="fab fa-github"></i>repository</button></a>
+        <a class="issues-button"
+            href="https://github.com/ianlmorgan/tweezepy/issues/new?title=Issue%20on%20page%20%2Fpages/quickstart.html&body=Your%20issue%20content%20here."><button
+                type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip" data-placement="left"
+                title="Open an issue"><i class="fas fa-lightbulb"></i>open issue</button></a>
+        <a class="edit-button" href="https://github.com/ianlmorgan/tweezepy/edit/master/docs/pages/quickstart.ipynb"><button
+                type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip" data-placement="left"
+                title="Edit this page"><i class="fas fa-pencil-alt"></i>suggest edit</button></a>
+    </div>
+</div>
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav" aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Simulating-a-bead-trajectory">
+   Simulating a bead trajectory
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Using-the-power-spectral-density-(PSD)-method">
+   Using the power spectral density (PSD) method
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Estimating-the-PSD-of-a-trajectory">
+     Estimating the PSD of a trajectory
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Fitting-a-model-to-the-estimated-PSD-using-maximum-likelihood-estimation-(MLE)">
+     Fitting a model to the estimated PSD using maximum likelihood estimation (MLE)
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Using-the-Allan-variance-(AV)-method">
+   Using the Allan variance (AV) method
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Estimating-the-AV-of-a-trajectory">
+     Estimating the AV of a trajectory
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Fitting-a-model-to-the-estimated-AV-using-maximum-likelihood-estimation-(MLE)">
+     Fitting a model to the estimated AV using maximum likelihood estimation (MLE)
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="section" id="Quickstart">
+<h1>Quickstart<a class="headerlink" href="#Quickstart" title="Permalink to this headline">¶</a></h1>
+<p>The easiest way to get started with using <code class="docutils literal notranslate"><span class="pre">tweezepy</span></code> is to use it for a project. Here’s an annotated fully-functional example that demonstrates standard usage.</p>
+<div class="section" id="Simulating-a-bead-trajectory">
+<h2>Simulating a bead trajectory<a class="headerlink" href="#Simulating-a-bead-trajectory" title="Permalink to this headline">¶</a></h2>
+<p>Standard usage of <code class="docutils literal notranslate"><span class="pre">tweezepy</span></code> requires a 1D array of bead positions, <span class="math notranslate nohighlight">\(x\)</span>, and a sampling frequency, <span class="math notranslate nohighlight">\(f_s\)</span>.</p>
+<p>To generate some example data, we will simulate a trajectory using <code class="docutils literal notranslate"><span class="pre">tweezepy</span></code>’s built in bead position simulator.</p>
+<p>To simulate the bead trajectory, we will need the bead’s drag coefficient, <span class="math notranslate nohighlight">\(\gamma\)</span>, spring constant, <span class="math notranslate nohighlight">\(\kappa\)</span>, and the number of points to simulate, <span class="math notranslate nohighlight">\(N\)</span>. To mimic a real experiment, we will simulate the trace at a high frequency and downsample it to the appropriate sampling frequency. If you want to learn more about the simulation, check out the simulation tutorial.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">tweezepy</span> <span class="kn">import</span> <span class="n">downsampled_trace</span>
+<span class="n">fc</span> <span class="o">=</span> <span class="mi">10</span> <span class="c1"># corner frequency</span>
+<span class="n">gamma</span> <span class="o">=</span> <span class="mf">1e-5</span> <span class="c1"># dissipation due to viscous drag, in pN s/nm</span>
+             <span class="c1"># 1e-5 is a typical value for an MT experiment</span>
+<span class="n">kappa</span> <span class="o">=</span> <span class="n">gamma</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">fc</span> <span class="c1"># kappa in pN/nm</span>
+<span class="n">fsample</span> <span class="o">=</span> <span class="mi">400</span> <span class="c1"># sampling frequency in Hz</span>
+<span class="n">N</span>  <span class="o">=</span> <span class="mi">102400</span> <span class="c1"># number of points in trajectory</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># random seed for reproducibility</span>
+<span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">/</span><span class="n">fsample</span> <span class="c1"># time in s</span>
+<span class="n">xtrace</span> <span class="o">=</span> <span class="n">downsampled_trace</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span><span class="n">kappa</span><span class="p">,</span><span class="n">fsample</span><span class="p">,</span><span class="n">N</span><span class="p">,</span> <span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Next, we will plot the bead positions and a histogram of the positions.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;../tweezepy.mplstyle&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span>
+                      <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                      <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;width_ratios&#39;</span><span class="p">:[</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+                                   <span class="s1">&#39;wspace&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">})</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">xtrace</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">xtrace</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">orientation</span> <span class="o">=</span> <span class="s1">&#39;horizontal&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Bead position (nm)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/pages_quickstart_6_1.png" src="../_images/pages_quickstart_6_1.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Using-the-power-spectral-density-(PSD)-method">
+<h2>Using the power spectral density (PSD) method<a class="headerlink" href="#Using-the-power-spectral-density-(PSD)-method" title="Permalink to this headline">¶</a></h2>
+<p>To use the power spectral density (PSD) method, simply import and use the <code class="docutils literal notranslate"><span class="pre">PSD</span></code> class.</p>
+<div class="section" id="Estimating-the-PSD-of-a-trajectory">
+<h3>Estimating the PSD of a trajectory<a class="headerlink" href="#Estimating-the-PSD-of-a-trajectory" title="Permalink to this headline">¶</a></h3>
+<p>To estimate the PSD of a trajectory, simply input the trajectory (in nm) and sampling frequency (in Hz) into the <code class="docutils literal notranslate"><span class="pre">PSD</span></code> class. The <code class="docutils literal notranslate"><span class="pre">PSD</span></code> class uses Welch’s method to estimate the PSD. By default, it splits the data into three independent bins, calculates the PSD for each bin, and averages them together to reduce noise. The noise can be further reduced, at the cost of low frequency resolution, by changing the optional <strong>bins</strong> parameter.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">tweezepy</span> <span class="kn">import</span> <span class="n">PSD</span>
+<span class="n">psd</span> <span class="o">=</span> <span class="n">PSD</span><span class="p">(</span><span class="n">xtrace</span><span class="p">,</span><span class="n">fsample</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="mi">35</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/pages_quickstart_9_0.png" src="../_images/pages_quickstart_9_0.png" />
+</div>
+</div>
+<p>This figure shows the estimated PSD of the simulated bead trajectory.</p>
+</div>
+<div class="section" id="Fitting-a-model-to-the-estimated-PSD-using-maximum-likelihood-estimation-(MLE)">
+<h3>Fitting a model to the estimated PSD using maximum likelihood estimation (MLE)<a class="headerlink" href="#Fitting-a-model-to-the-estimated-PSD-using-maximum-likelihood-estimation-(MLE)" title="Permalink to this headline">¶</a></h3>
+<p>To fit a model to the estimated PSD, simply call the PSD object and use the mlefit method. By default, it uses the Lansdorp PSD, which assumes zero dead-time and accounts for aliasing and motion blur.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">psd</span><span class="o">.</span><span class="n">mlefit</span><span class="p">()</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data_label</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">,</span><span class="n">fit_label</span> <span class="o">=</span> <span class="s1">&#39;MLE fit&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x16092eab7f0&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/pages_quickstart_12_1.png" src="../_images/pages_quickstart_12_1.png" />
+</div>
+</div>
+<p>This figure shows the MLE fit to the PSD estimates. The parameters and their associated uncertainties can be accessed directly.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">Math</span>
+<span class="n">txt</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\gamma = </span><span class="si">%.1e</span><span class="s2">\pm</span><span class="si">%.1e</span><span class="s2">\textrm{ pNs/nm}$&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">psd</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">psd</span><span class="o">.</span><span class="n">std_errors</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">display</span><span class="p">(</span><span class="n">Math</span><span class="p">(</span><span class="n">txt</span><span class="p">))</span>
+<span class="n">txt</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\kappa = </span><span class="si">%.1e</span><span class="s2">\pm</span><span class="si">%.1e</span><span class="s2">\textrm{ pN/nm}$&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">psd</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">psd</span><span class="o">.</span><span class="n">std_errors</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">display</span><span class="p">(</span><span class="n">Math</span><span class="p">(</span><span class="n">txt</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="math notranslate nohighlight">
+$\displaystyle \gamma = 1.0e-05\pm4.9e-08\textrm{ pNs/nm}$</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="math notranslate nohighlight">
+$\displaystyle \kappa = 6.3e-04\pm7.1e-06\textrm{ pN/nm}$</div></div>
+</div>
+</div>
+</div>
+<div class="section" id="Using-the-Allan-variance-(AV)-method">
+<h2>Using the Allan variance (AV) method<a class="headerlink" href="#Using-the-Allan-variance-(AV)-method" title="Permalink to this headline">¶</a></h2>
+<p>To use the Allan variance (AV) method, simply import and use the <code class="docutils literal notranslate"><span class="pre">AV</span></code> class.</p>
+<div class="section" id="Estimating-the-AV-of-a-trajectory">
+<h3>Estimating the AV of a trajectory<a class="headerlink" href="#Estimating-the-AV-of-a-trajectory" title="Permalink to this headline">¶</a></h3>
+<p>To estimate the AV of a trajectory, simply input the trajectory (in nm) and sampling frequency (in Hz) into the <code class="docutils literal notranslate"><span class="pre">PSD</span></code> class. By default, the <code class="docutils literal notranslate"><span class="pre">AV</span></code> class uses the overlapping AV, octave spaced samples, and calculates the type of noise and equivalent degrees of freedom. See docstrings for more information.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">tweezepy</span> <span class="kn">import</span> <span class="n">AV</span>
+<span class="n">av</span> <span class="o">=</span> <span class="n">AV</span><span class="p">(</span><span class="n">xtrace</span><span class="p">,</span><span class="n">fsample</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">av</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/pages_quickstart_17_0.png" src="../_images/pages_quickstart_17_0.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Fitting-a-model-to-the-estimated-AV-using-maximum-likelihood-estimation-(MLE)">
+<h3>Fitting a model to the estimated AV using maximum likelihood estimation (MLE)<a class="headerlink" href="#Fitting-a-model-to-the-estimated-AV-using-maximum-likelihood-estimation-(MLE)" title="Permalink to this headline">¶</a></h3>
+<p>To fit a model to the estimated AV, simply call the AV object and use the mlefit method. By default, it uses the analytical function without tracking error.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">av</span><span class="o">.</span><span class="n">mlefit</span><span class="p">()</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">av</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data_label</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">,</span><span class="n">fit_label</span> <span class="o">=</span> <span class="s1">&#39;MLE fit&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x160914d1fd0&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/pages_quickstart_19_1.png" src="../_images/pages_quickstart_19_1.png" />
+</div>
+</div>
+<p>This figure shows the MLE fit to the AV estimates. The parameters and their associated uncertainties can be accessed directly.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">txt</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\gamma = </span><span class="si">%.1e</span><span class="s2">\pm</span><span class="si">%.1e</span><span class="s2">\textrm{ pNs/nm}$&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">av</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">av</span><span class="o">.</span><span class="n">std_errors</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">display</span><span class="p">(</span><span class="n">Math</span><span class="p">(</span><span class="n">txt</span><span class="p">))</span>
+<span class="n">txt</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\kappa = </span><span class="si">%.1e</span><span class="s2">\pm</span><span class="si">%.1e</span><span class="s2">\textrm{ pN/nm}$&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">av</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">av</span><span class="o">.</span><span class="n">std_errors</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">display</span><span class="p">(</span><span class="n">Math</span><span class="p">(</span><span class="n">txt</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="math notranslate nohighlight">
+$\displaystyle \gamma = 1.0e-05\pm6.7e-08\textrm{ pNs/nm}$</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="math notranslate nohighlight">
+$\displaystyle \kappa = 6.4e-04\pm7.3e-06\textrm{ pN/nm}$</div></div>
+</div>
+</div>
+</div>
+</div>
+
+
+              </div>
+              
+        
+            
+
+
+
+<div class='prev-next-bottom'>
+    
+    <div id="prev">
+        <a class="left-prev" href="../install.html" title="previous page">
+            <i class="prevnext-label fas fa-angle-left"></i>
+            <div class="prevnext-info">
+                <p class="prevnext-label">previous</p>
+                <p class="prevnext-title">Installation</p>
+            </div>
+        </a>
+    </div>
+     <div id="next">
+        <a class="right-next" href="mcmc.html" title="next page">
+            <div class="prevnext-info">
+                <p class="prevnext-label">next</p>
+                <p class="prevnext-title">Robust Uncertainties</p>
+            </div>
+            <i class="prevnext-label fas fa-angle-right"></i>
+        </a>
+     </div>
+
+</div>
+        
+        </div>
+    </div>
+    <footer class="footer">
+    <div class="container">
+      <p>
+        
+          By Ian L. Morgan<br/>
+        
+            &copy; Copyright 2021, Ian L. Morgan.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>
