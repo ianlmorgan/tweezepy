@@ -23,11 +23,6 @@ To install ``Tweezepy``, you should follow the :ref:`install` guide. After you i
     pages/mcmc
     pages/simulations
 
-You can launch these notebooks in Binder and run the code yourself: 
-
-.. image:: https://mybinder.org/badge_logo.svg
-    :target: https://mybinder.org/v2/gh/ianlmorgan/tweezepy/master
-
 In the API, you can find a list of the classes and modules in ``Tweezepy`` including all their expected inputs and outputs. The main user-facing classes ``AV`` and ``PSD`` are pat of the ``smmcalibration`` module.
 
 .. toctree::
