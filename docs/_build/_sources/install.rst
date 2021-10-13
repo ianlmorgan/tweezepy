@@ -2,17 +2,20 @@
 
 Installation
 ============
+To use ``Tweezepy``, you will need to `install Python <https://realpython.com/installing-python/>`_ on your system if you haven't already. 
 
-Dependencies
-------------
+Package manager
+---------------
+``Tweezepy`` can be found on the `Python Package Index <https://packaging.python.org/glossary/#term-python-package-index-pypi>`_ and installed using `pip <http://www.pip-installer.org/>`_, the `package installer for Python <https://packaging.python.org/guides/tool-recommendations/>`_. Usually, pip comes pre-installed with Python.
 
-``Tweezepy`` depends on ``numpy``,  ``scipy``, and ``autograd``. Optionally, ``matplotlib`` is used for plotting and ``emcee`` is used for monte carlo sampling. You can install these using your favorite Python package manager.
+To check whether you have a working Python installation with pip installed, run the following commands from the command line.
 
-Using pip
----------
+.. code-block:: bash
 
-The recommended way to install the latest stable verision of ``tweezepy`` is
-with `pip <http://www.pip-installer.org/>`_:
+    python --version
+    pip --version
+
+Once you've verified that you have a working Python installation with pip installed, you can run the following command to download and install ``Tweezepy`` from the Python package index.
 
 .. code-block:: bash
 
@@ -21,7 +24,7 @@ with `pip <http://www.pip-installer.org/>`_:
 From source
 -----------
 
-Alternatively, ``tweezepy`` can be installed by cloning the source repository from `Github <https://github.com/ianlmorgan/tweezepy>`_:
+Alternatively, ``Tweezepy`` can be installed by cloning the source repository from `Github <https://github.com/ianlmorgan/tweezepy>`_:
 
 .. code-block:: bash
 
@@ -34,7 +37,7 @@ Once you've downloaded the source, you can navigate into the root source directo
     python -m pip install .
 
 Tests
------
+*****
 
 If you installed from source, you should run the unit tests to make sure everything worked properly. From the root of the source directory, run:
 

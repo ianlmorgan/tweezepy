@@ -38,7 +38,7 @@
     <link rel="canonical" href="https://tweezepy.readthedocs.io/en/latest/pages/quickstart.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Robust Uncertainties" href="mcmc.html" />
+    <link rel="next" title="Robust paramater uncertainties" href="mcmc.html" />
     <link rel="prev" title="Installation" href="../install.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en" />
@@ -93,7 +93,7 @@
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="mcmc.html">
-   Robust Uncertainties
+   Robust paramater uncertainties
   </a>
  </li>
  <li class="toctree-l1">
@@ -517,11 +517,11 @@ div.rendered_html tbody tr:hover {
 </style>
 <div class="section" id="Quickstart">
 <h1>Quickstart<a class="headerlink" href="#Quickstart" title="Permalink to this headline">¶</a></h1>
-<p>The easiest way to get started with using <code class="docutils literal notranslate"><span class="pre">tweezepy</span></code> is to use it for a project. Here’s an annotated fully-functional example that demonstrates standard usage.</p>
+<p>The easiest way to get started with using <code class="docutils literal notranslate"><span class="pre">Tweezepy</span></code> is to use it for a project. Here’s an annotated fully-functional example that demonstrates standard usage.</p>
 <div class="section" id="Simulating-a-bead-trajectory">
 <h2>Simulating a bead trajectory<a class="headerlink" href="#Simulating-a-bead-trajectory" title="Permalink to this headline">¶</a></h2>
-<p>Standard usage of <code class="docutils literal notranslate"><span class="pre">tweezepy</span></code> requires a 1D array of bead positions, <span class="math notranslate nohighlight">\(x\)</span>, and a sampling frequency, <span class="math notranslate nohighlight">\(f_s\)</span>.</p>
-<p>To generate some example data, we will simulate a trajectory using <code class="docutils literal notranslate"><span class="pre">tweezepy</span></code>’s built in bead position simulator.</p>
+<p>Standard usage of <code class="docutils literal notranslate"><span class="pre">Tweezepy</span></code> requires a 1D array of bead positions, <span class="math notranslate nohighlight">\(x\)</span>, and a sampling frequency, <span class="math notranslate nohighlight">\(f_s\)</span>.</p>
+<p>To generate some example data, we will simulate a trajectory using <code class="docutils literal notranslate"><span class="pre">Tweezepy</span></code>’s built in bead position simulator.</p>
 <p>To simulate the bead trajectory, we will need the bead’s drag coefficient, <span class="math notranslate nohighlight">\(\gamma\)</span>, spring constant, <span class="math notranslate nohighlight">\(\kappa\)</span>, and the number of points to simulate, <span class="math notranslate nohighlight">\(N\)</span>. To mimic a real experiment, we will simulate the trace at a high frequency and downsample it to the appropriate sampling frequency. If you want to learn more about the simulation, check out the simulation tutorial.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -559,8 +559,7 @@ div.rendered_html tbody tr:hover {
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Bead position (nm)&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
-
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([]);</span>
 </pre></div>
 </div>
 </div>
@@ -583,7 +582,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="section" id="Using-the-power-spectral-density-(PSD)-method">
 <h2>Using the power spectral density (PSD) method<a class="headerlink" href="#Using-the-power-spectral-density-(PSD)-method" title="Permalink to this headline">¶</a></h2>
-<p>To use the power spectral density (PSD) method, simply import and use the <code class="docutils literal notranslate"><span class="pre">PSD</span></code> class.</p>
+<p>To use the power spectral density (PSD) method, simply import and call the <code class="docutils literal notranslate"><span class="pre">PSD</span></code> class.</p>
 <div class="section" id="Estimating-the-PSD-of-a-trajectory">
 <h3>Estimating the PSD of a trajectory<a class="headerlink" href="#Estimating-the-PSD-of-a-trajectory" title="Permalink to this headline">¶</a></h3>
 <p>To estimate the PSD of a trajectory, simply input the trajectory (in nm) and sampling frequency (in Hz) into the <code class="docutils literal notranslate"><span class="pre">PSD</span></code> class. The <code class="docutils literal notranslate"><span class="pre">PSD</span></code> class uses Welch’s method to estimate the PSD. By default, it splits the data into three independent bins, calculates the PSD for each bin, and averages them together to reduce noise. The noise can be further reduced, at the cost of low frequency resolution, by changing the optional <strong>bins</strong> parameter.</p>
@@ -637,16 +636,16 @@ div.rendered_html tbody tr:hover {
 <img alt="../_images/pages_quickstart_12_1.png" src="../_images/pages_quickstart_12_1.png" />
 </div>
 </div>
-<p>This figure shows the MLE fit to the PSD estimates. The parameters and their associated uncertainties can be accessed directly.</p>
+<p>This figure shows the MLE fit to the PSD estimates. The parameters and their associated uncertainties can be accessed directly through the results dictionary.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">Math</span>
-<span class="n">txt</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\gamma = </span><span class="si">%.1e</span><span class="s2">\pm</span><span class="si">%.1e</span><span class="s2">\textrm{ pNs/nm}$&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">psd</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">psd</span><span class="o">.</span><span class="n">std_errors</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">txt</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\gamma = </span><span class="si">%.1e</span><span class="s2">\pm</span><span class="si">%.1e</span><span class="s2">\textrm{ pNs/nm}$&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">psd</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">],</span><span class="n">psd</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;g_error&#39;</span><span class="p">])</span>
 <span class="n">display</span><span class="p">(</span><span class="n">Math</span><span class="p">(</span><span class="n">txt</span><span class="p">))</span>
-<span class="n">txt</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\kappa = </span><span class="si">%.1e</span><span class="s2">\pm</span><span class="si">%.1e</span><span class="s2">\textrm{ pN/nm}$&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">psd</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">psd</span><span class="o">.</span><span class="n">std_errors</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">txt</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\kappa = </span><span class="si">%.1e</span><span class="s2">\pm</span><span class="si">%.1e</span><span class="s2">\textrm{ pN/nm}$&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">psd</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">],</span><span class="n">psd</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;k_error&#39;</span><span class="p">])</span>
 <span class="n">display</span><span class="p">(</span><span class="n">Math</span><span class="p">(</span><span class="n">txt</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -669,10 +668,10 @@ $\displaystyle \kappa = 6.3e-04\pm7.1e-06\textrm{ pN/nm}$</div></div>
 </div>
 <div class="section" id="Using-the-Allan-variance-(AV)-method">
 <h2>Using the Allan variance (AV) method<a class="headerlink" href="#Using-the-Allan-variance-(AV)-method" title="Permalink to this headline">¶</a></h2>
-<p>To use the Allan variance (AV) method, simply import and use the <code class="docutils literal notranslate"><span class="pre">AV</span></code> class.</p>
+<p>To use the Allan variance (AV) method, simply import and call the <code class="docutils literal notranslate"><span class="pre">AV</span></code> class.</p>
 <div class="section" id="Estimating-the-AV-of-a-trajectory">
 <h3>Estimating the AV of a trajectory<a class="headerlink" href="#Estimating-the-AV-of-a-trajectory" title="Permalink to this headline">¶</a></h3>
-<p>To estimate the AV of a trajectory, simply input the trajectory (in nm) and sampling frequency (in Hz) into the <code class="docutils literal notranslate"><span class="pre">PSD</span></code> class. By default, the <code class="docutils literal notranslate"><span class="pre">AV</span></code> class uses the overlapping AV, octave spaced samples, and calculates the type of noise and equivalent degrees of freedom. See docstrings for more information.</p>
+<p>To estimate the AV of a trajectory, simply input the trajectory (in nm) and sampling frequency (in Hz) into the <code class="docutils literal notranslate"><span class="pre">AV</span></code> class. By default, the <code class="docutils literal notranslate"><span class="pre">AV</span></code> class uses the overlapping AV, octave spaced samples, and calculates the type of noise and equivalent degrees of freedom. See the API or docstrings for more information.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
@@ -728,9 +727,9 @@ $\displaystyle \kappa = 6.3e-04\pm7.1e-06\textrm{ pN/nm}$</div></div>
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">txt</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\gamma = </span><span class="si">%.1e</span><span class="s2">\pm</span><span class="si">%.1e</span><span class="s2">\textrm{ pNs/nm}$&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">av</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">av</span><span class="o">.</span><span class="n">std_errors</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span></span><span class="n">txt</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\gamma = </span><span class="si">%.1e</span><span class="s2">\pm</span><span class="si">%.1e</span><span class="s2">\textrm{ pNs/nm}$&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">av</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">],</span><span class="n">av</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;g_error&#39;</span><span class="p">])</span>
 <span class="n">display</span><span class="p">(</span><span class="n">Math</span><span class="p">(</span><span class="n">txt</span><span class="p">))</span>
-<span class="n">txt</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\kappa = </span><span class="si">%.1e</span><span class="s2">\pm</span><span class="si">%.1e</span><span class="s2">\textrm{ pN/nm}$&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">av</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">av</span><span class="o">.</span><span class="n">std_errors</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">txt</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\kappa = </span><span class="si">%.1e</span><span class="s2">\pm</span><span class="si">%.1e</span><span class="s2">\textrm{ pN/nm}$&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">av</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">],</span><span class="n">av</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;k_error&#39;</span><span class="p">])</span>
 <span class="n">display</span><span class="p">(</span><span class="n">Math</span><span class="p">(</span><span class="n">txt</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -776,7 +775,7 @@ $\displaystyle \kappa = 6.4e-04\pm7.3e-06\textrm{ pN/nm}$</div></div>
         <a class="right-next" href="mcmc.html" title="next page">
             <div class="prevnext-info">
                 <p class="prevnext-label">next</p>
-                <p class="prevnext-title">Robust Uncertainties</p>
+                <p class="prevnext-title">Robust paramater uncertainties</p>
             </div>
             <i class="prevnext-label fas fa-angle-right"></i>
         </a>

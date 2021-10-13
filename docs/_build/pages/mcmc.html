@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Robust Uncertainties &#8212; Tweezepy</title>
+    <title>Robust paramater uncertainties &#8212; Tweezepy</title>
     
   <link href="../_static/css/theme.css" rel="stylesheet" />
   <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -93,7 +93,7 @@
  </li>
  <li class="toctree-l1 current active">
   <a class="current reference internal" href="#">
-   Robust Uncertainties
+   Robust paramater uncertainties
   </a>
  </li>
  <li class="toctree-l1">
@@ -218,19 +218,28 @@
             <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Simulate-trace">
-   Simulate trace
+  <a class="reference internal nav-link" href="#Simulate-a-downsampled-trace">
+   Simulate a downsampled trace
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Calculate-power-spectral-density-(PSD)-and-fit-it">
+     Calculate power spectral density (PSD) and fit it
+    </a>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Calculate-PSD">
-   Calculate PSD
+  <a class="reference internal nav-link" href="#Markov-Chain-Monte-Carlo-(MCMC)-sampling">
+   Markov Chain Monte Carlo (MCMC) sampling
   </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Monte-Carlo-sampling">
-   Monte Carlo sampling
-  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Results">
+     Results
+    </a>
+   </li>
+  </ul>
  </li>
 </ul>
 
@@ -511,14 +520,16 @@ div.rendered_html tbody tr:hover {
 Populating the interactive namespace from numpy and matplotlib
 </pre></div></div>
 </div>
-<div class="section" id="Robust-Uncertainties">
-<h1>Robust Uncertainties<a class="headerlink" href="#Robust-Uncertainties" title="Permalink to this headline">¶</a></h1>
-<p>In most cases, the Hessian method is sufficient for calculating the parameter uncertainties. However, in some cases (e.g., small sample sizes and parasitic noise), the Gaussian approximation for the parameter erros is not valid. In these cases, it may be necessary to run a Monte Carlo sampler to estimate errors. This method is slower but more robust.</p>
-<div class="section" id="Simulate-trace">
-<h2>Simulate trace<a class="headerlink" href="#Simulate-trace" title="Permalink to this headline">¶</a></h2>
-<p>First, we’ll simulate a downsampled example trace.</p>
+<div class="section" id="Robust-paramater-uncertainties">
+<h1>Robust paramater uncertainties<a class="headerlink" href="#Robust-paramater-uncertainties" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">Tweezepy</span></code> contains two different methods for calculating uncertainties. The first method relies on the Hessian of the maximum likelihood estimate. It is fast and sufficient for most circumstances; however, it relies on a Gaussian approximation that may not be valid in some cases (i.e., small sample sizes and parasitic noise). In these cases, a more robust option is to numerically sample the probability distribution of the parameters using a Markov Chain Monte Carlo (MCMC) sampler and estimate
+errors.</p>
+<p>Here is an example showing how to use the MCMC method in <code class="docutils literal notranslate"><span class="pre">Tweezepy</span></code>.</p>
+<div class="section" id="Simulate-a-downsampled-trace">
+<h2>Simulate a downsampled trace<a class="headerlink" href="#Simulate-a-downsampled-trace" title="Permalink to this headline">¶</a></h2>
+<p>First, we’ll simulate an example downsampled trace to mimic a single-molecule video-tracking system.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -547,12 +558,11 @@ Populating the interactive namespace from numpy and matplotlib
 <img alt="../_images/pages_mcmc_3_0.png" src="../_images/pages_mcmc_3_0.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Calculate-PSD">
-<h2>Calculate PSD<a class="headerlink" href="#Calculate-PSD" title="Permalink to this headline">¶</a></h2>
-<p>Now, we’ll calculate the experimental AV and fit it.</p>
+<div class="section" id="Calculate-power-spectral-density-(PSD)-and-fit-it">
+<h3>Calculate power spectral density (PSD) and fit it<a class="headerlink" href="#Calculate-power-spectral-density-(PSD)-and-fit-it" title="Permalink to this headline">¶</a></h3>
+<p>Now, we’ll calculate the experimental PSD and fit it using maximum likelihood estimation.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -570,9 +580,11 @@ Populating the interactive namespace from numpy and matplotlib
 </div>
 </div>
 </div>
-<div class="section" id="Monte-Carlo-sampling">
-<h2>Monte Carlo sampling<a class="headerlink" href="#Monte-Carlo-sampling" title="Permalink to this headline">¶</a></h2>
-<p>Now, that we have an MLE fit, we can use the emcee package to perform Monte Carlo sampling of the parameter space.</p>
+</div>
+<div class="section" id="Markov-Chain-Monte-Carlo-(MCMC)-sampling">
+<h2>Markov Chain Monte Carlo (MCMC) sampling<a class="headerlink" href="#Markov-Chain-Monte-Carlo-(MCMC)-sampling" title="Permalink to this headline">¶</a></h2>
+<p>This tutorial won’t go into how or why Monte Carlo sampling works. For more information on MCMC, I suggest checking out <a class="reference external" href="http://numerical.recipes/book/book.html">Numerical Recipes</a>. Rather, this tutorial shows how to use the MCMC</p>
+<p>Once a MLE fit is obtained, we can sample the parameter space using the <code class="docutils literal notranslate"><span class="pre">emcee</span></code> Python package. By default, 32 walkers are initialized in a tiny Gaussian ball around the MLE result and then run though 2,000 steps of MCMC.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
@@ -588,7 +600,7 @@ Populating the interactive namespace from numpy and matplotlib
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-100%|██████████| 2000/2000 [01:13&lt;00:00, 27.07it/s]
+100%|██████████| 2000/2000 [01:00&lt;00:00, 32.81it/s]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -609,33 +621,11 @@ Populating the interactive namespace from numpy and matplotlib
 <img alt="../_images/pages_mcmc_7_2.png" src="../_images/pages_mcmc_7_2.png" />
 </div>
 </div>
-<p>This plot shows the accepted step from the Monte Carlo sampling. It takes the sampler some time to ‘forget’ the initial state, so we’ll throw out twice the autocorrelation time (black vertical line). Then, we’ll thin the samples by half the autocorrelation time to ensure the steps are uncorrelated.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">psd</span><span class="o">.</span><span class="n">sample_plot</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-(&lt;Figure size 720x432 with 2 Axes&gt;,
- [&lt;AxesSubplot:ylabel=&#39;g&#39;&gt;, &lt;AxesSubplot:xlabel=&#39;step number&#39;, ylabel=&#39;k&#39;&gt;])
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../_images/pages_mcmc_9_1.svg" src="../_images/pages_mcmc_9_1.svg" /></div>
-</div>
-<p>We can use a corner plot to look at the 1 and 2D histograms. This uses the corner package, which is separate from the emcee package. The MLE best-fit parameter estimates are indicated by the blue lines. The dotted black lines in the 1D histograms are the 16th and 84th% percentiles. The black lines in the 2D histogram are the 1,2, and 3 standard deviations.</p>
+<p>This plot shows the positions of each walker as a function of the number of steps in the chain. As mentioned above, the walkers start in small Gaussian ball around the MLE results but quickly wander and explore the full paramater distribution.</p>
+<p>It takes the sampler some time to ‘forget’ the initial state, so we’ll throw out twice the autocorrelation time (black vertical line). Then, we’ll thin the samples by half the autocorrelation time to ensure the values at each step are uncorrelated.</p>
+<div class="section" id="Results">
+<h3>Results<a class="headerlink" href="#Results" title="Permalink to this headline">¶</a></h3>
+<p>Now that we have a list of sampler positions, we can visualize the parameter distributions using a corner plot (i.e., the 1 and 2D histograms). This uses the corner package, which is separate from the emcee package. The MLE best-fit parameter estimates are indicated by the blue lines. The dotted black lines in the 1D histograms are the 16th and 84th percentiles. The black contour lines in the 2D histogram are the 1, 2, and 3 standard deviations.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
@@ -649,11 +639,12 @@ Populating the interactive namespace from numpy and matplotlib
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/pages_mcmc_11_0.png" src="../_images/pages_mcmc_11_0.png" />
+<img alt="../_images/pages_mcmc_10_0.png" src="../_images/pages_mcmc_10_0.png" />
 </div>
 </div>
+<p>The corner plot shows all the one and two dimensional projections of the parameter distributions. This is useful because it shows the covariances between parameters. After running the mcmc sampler, the one standard deviation errors are automatically added to the results dictionary.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -663,7 +654,7 @@ Populating the interactive namespace from numpy and matplotlib
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -677,31 +668,40 @@ Populating the interactive namespace from numpy and matplotlib
  &#39;support&#39;: 1.0,
  &#39;p-value&#39;: 0.0,
  &#39;AIC&#39;: 13644.000903245327,
- &#39;g_mcmc&#39;: 9.987417704837286e-06,
- &#39;g_mcmc_error&#39;: 3.477148658851021e-08,
- &#39;k_mcmc&#39;: 0.0006337909875973476,
- &#39;k_mcmc_error&#39;: 5.164586781813941e-06}
+ &#39;g_mcmc&#39;: 9.986848732432244e-06,
+ &#39;g_mcmc_error&#39;: 3.418940344871848e-08,
+ &#39;k_mcmc&#39;: 0.0006337286094969152,
+ &#39;k_mcmc_error&#39;: 5.291154044559593e-06}
 </pre></div></div>
 </div>
+<p>The results can be accessed directly through the results dictionary.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># We can also access the mcmc median and standard error values</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">psd</span><span class="o">.</span><span class="n">mcmc_params</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">psd</span><span class="o">.</span><span class="n">mcmc_std_errors</span><span class="p">)</span>
+<span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">Math</span>
+<span class="n">txt</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\gamma = </span><span class="si">%.1e</span><span class="s2">\pm</span><span class="si">%.1e</span><span class="s2">\textrm{ pNs/nm}$&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">psd</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;g_mcmc&#39;</span><span class="p">],</span><span class="n">psd</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;g_mcmc_error&#39;</span><span class="p">])</span>
+<span class="n">display</span><span class="p">(</span><span class="n">Math</span><span class="p">(</span><span class="n">txt</span><span class="p">))</span>
+<span class="n">txt</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\kappa = </span><span class="si">%.1e</span><span class="s2">\pm</span><span class="si">%.1e</span><span class="s2">\textrm{ pN/nm}$&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">psd</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;k_mcmc&#39;</span><span class="p">],</span><span class="n">psd</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;k_mcmc_error&#39;</span><span class="p">])</span>
+<span class="n">display</span><span class="p">(</span><span class="n">Math</span><span class="p">(</span><span class="n">txt</span><span class="p">))</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="math notranslate nohighlight">
+$\displaystyle \gamma = 1.0e-05\pm3.4e-08\textrm{ pNs/nm}$</div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<div class="highlight"><pre>
-[9.98741770e-06 6.33790988e-04]
-[3.47714866e-08 5.16458678e-06]
-</pre></div></div>
+<div class="math notranslate nohighlight">
+$\displaystyle \kappa = 6.3e-04\pm5.3e-06\textrm{ pN/nm}$</div></div>
+</div>
 </div>
 </div>
 </div>

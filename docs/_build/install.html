@@ -91,7 +91,7 @@
  </li>
  <li class="toctree-l1">
   <a class="reference internal" href="pages/mcmc.html">
-   Robust Uncertainties
+   Robust paramater uncertainties
   </a>
  </li>
  <li class="toctree-l1">
@@ -216,24 +216,21 @@
             <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#dependencies">
-   Dependencies
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#using-pip">
-   Using pip
+  <a class="reference internal nav-link" href="#package-manager">
+   Package manager
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#from-source">
    From source
   </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#tests">
-   Tests
-  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#tests">
+     Tests
+    </a>
+   </li>
+  </ul>
  </li>
 </ul>
 
@@ -248,21 +245,23 @@
                 
   <div class="section" id="installation">
 <span id="install"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="dependencies">
-<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">Tweezepy</span></code> depends on <code class="docutils literal notranslate"><span class="pre">numpy</span></code>,  <code class="docutils literal notranslate"><span class="pre">scipy</span></code>, and <code class="docutils literal notranslate"><span class="pre">autograd</span></code>. Optionally, <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> is used for plotting and <code class="docutils literal notranslate"><span class="pre">emcee</span></code> is used for monte carlo sampling. You can install these using your favorite Python package manager.</p>
+<p>To use <code class="docutils literal notranslate"><span class="pre">Tweezepy</span></code>, you will need to <a class="reference external" href="https://realpython.com/installing-python/">install Python</a> on your system if you haven’t already.</p>
+<div class="section" id="package-manager">
+<h2>Package manager<a class="headerlink" href="#package-manager" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Tweezepy</span></code> can be found on the <a class="reference external" href="https://packaging.python.org/glossary/#term-python-package-index-pypi">Python Package Index</a> and installed using <a class="reference external" href="http://www.pip-installer.org/">pip</a>, the <a class="reference external" href="https://packaging.python.org/guides/tool-recommendations/">package installer for Python</a>. Usually, pip comes pre-installed with Python.</p>
+<p>To check whether you have a working Python installation with pip installed, run the following commands from the command line.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python --version
+pip --version
+</pre></div>
 </div>
-<div class="section" id="using-pip">
-<h2>Using pip<a class="headerlink" href="#using-pip" title="Permalink to this headline">¶</a></h2>
-<p>The recommended way to install the latest stable verision of <code class="docutils literal notranslate"><span class="pre">tweezepy</span></code> is
-with <a class="reference external" href="http://www.pip-installer.org/">pip</a>:</p>
+<p>Once you’ve verified that you have a working Python installation with pip installed, you can run the following command to download and install <code class="docutils literal notranslate"><span class="pre">Tweezepy</span></code> from the Python package index.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m pip install tweezepy
 </pre></div>
 </div>
 </div>
 <div class="section" id="from-source">
 <h2>From source<a class="headerlink" href="#from-source" title="Permalink to this headline">¶</a></h2>
-<p>Alternatively, <code class="docutils literal notranslate"><span class="pre">tweezepy</span></code> can be installed by cloning the source repository from <a class="reference external" href="https://github.com/ianlmorgan/tweezepy">Github</a>:</p>
+<p>Alternatively, <code class="docutils literal notranslate"><span class="pre">Tweezepy</span></code> can be installed by cloning the source repository from <a class="reference external" href="https://github.com/ianlmorgan/tweezepy">Github</a>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/ianlmorgan/tweezepy.git
 </pre></div>
 </div>
@@ -270,14 +269,14 @@ with <a class="reference external" href="http://www.pip-installer.org/">pip</a>:
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m pip install .
 </pre></div>
 </div>
-</div>
 <div class="section" id="tests">
-<h2>Tests<a class="headerlink" href="#tests" title="Permalink to this headline">¶</a></h2>
+<h3>Tests<a class="headerlink" href="#tests" title="Permalink to this headline">¶</a></h3>
 <p>If you installed from source, you should run the unit tests to make sure everything worked properly. From the root of the source directory, run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m pip install pytest -v tests
 </pre></div>
 </div>
 <p>This might take a few minutes but you shouldn’t get any errors if all went as planned.</p>
+</div>
 </div>
 </div>
 
