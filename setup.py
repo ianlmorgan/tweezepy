@@ -13,7 +13,7 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 NAME = "Tweezepy"
-VERSION = "1.1.2"
+VERSION = "1.1.3"
 DESCRIPTION = "Single-molecule force spectroscopy calibration"
 AUTHOR = "Ian L. Morgan"
 AUTHOR_EMAIL = "ilmorgan@ucsb.edu"
@@ -22,6 +22,9 @@ LICENSE = "LGPLv3+"
 INSTALL_REQUIRES = [
                     "numpy>=1.15,<1.20",
                     "scipy",
+                    "autograd",
+                    "numba",
+                    "emcee",
                     ]
 SETUP_REQUIRES = INSTALL_REQUIRES + [
     "setuptools>=40.6.0",
