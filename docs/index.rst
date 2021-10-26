@@ -3,7 +3,7 @@ Welcome to Tweezepy's documentation!
 
 ``Tweezepy`` is a Python package for calibrating forces in single-molecule force spectroscopy experiments and these pages will show you how to use it.
 
-Development of ``Tweezepy`` happens on `Github <https://github.com/ianlmorgan/tweezepy)>`_ so you can raise any bugs, documentation improvements, or feature reqeusts `there <https://github.com/ianlmorgan/tweezepy/issues>`_.
+Development of ``Tweezepy`` happens on `Github <https://github.com/ianlmorgan/tweezepy>`_ so you can raise any bugs, documentation improvements, or feature reqeusts `there <https://github.com/ianlmorgan/tweezepy/issues>`_.
 
 How to use this guide
 ---------------------

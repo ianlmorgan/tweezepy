@@ -5,7 +5,7 @@
 This is [Tweezepy](https://github.com/ianlmorgan/tweezepy), a Python package for calibrating forces in single-molecule force spectroscopy video-tracking experiments using the power spectral density (PSD) and Allan variance (AV).
 
 ## Documentation
-Read the documentation for `Tweezepy` [here](https://tweezepy.readthedocs.io/).
+Read the documentation for [Tweezepy](https://tweezepy.readthedocs.io/).
 
 ## How to install
 The simplest method of installing the `Tweezepy` package is via the [Python Package Index](https://packaging.python.org/glossary/#term-python-package-index-pypi) (PyPI). To install from PyPI, you will need to be able to run python from the command line and make sure you have [pip](https://packaging.python.org/key_projects/#pip) available.
