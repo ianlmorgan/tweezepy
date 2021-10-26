@@ -187,8 +187,6 @@ class MLEfit(MCMC):
     ----------
     names : list
         Fit function parameter names.
-    results : dictionary
-        Dictionary of results.
     params : array
         Parameter values.
     std_errors : array
