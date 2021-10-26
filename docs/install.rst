@@ -28,6 +28,7 @@ Alternative Python installation:
 If you do not want to install Python via the Anaconda distribution,
 there are a number of other ways to install Python. For example,
 you can install it via the `official distribution <https://www.python.org/downloads>`_.
+
 .. important::
 
     Currently, Python 3.10.x is incompatible with many standard scientific computing
@@ -35,7 +36,8 @@ you can install it via the `official distribution <https://www.python.org/downlo
     version of 3.9.x. until further notice.
 
 If you install Python separately, you may need to install some additional packages.
-These additional packages are included in the requirements.txt file.
+If you follow this guide, these additional packages should be installed automatically.
+They are also listing in the requirements.txt file.
 
 Ensure you can run Python
 -------------------------
@@ -74,11 +76,7 @@ To check whether you have pip installed, run the following commands from the com
 
     pip --version
 
-If pip is installed properly, you should get something like this:
-
-.. code-block:: bash
-
-    pip 21.0.1 from ...
+If pip is installed properly, you should get an output like ``pip 21.0.1 from ...``.
 
 Once you've verified that you have a working Python installation with pip installed, 
 you can run the following command from the command line to download and install **Tweezepy**:
@@ -107,7 +105,7 @@ Once you've downloaded the source, you can navigate into the root source directo
 Running tests
 *************
 
-If you installed from source, you should run the unit tests to make sure everything worked properly. 
+If you installed from source, you should run the tests to make sure everything worked properly. 
 From the root of the source directory, run:
 
 .. code-block:: bash
@@ -124,13 +122,13 @@ Optional: Jupyter notebooks
 You can run Python code directly in the Python interpreter or as a script in an integrated development editor (IDE), 
 such as Spyder, Visual Studio Code, or Sublime text. 
 
-Alternatively, it is often convenient to use Jupyter Notebooks,which is similar to notebook format used in Mathematica.
+Alternatively, it can be convenient to use Jupyter Notebooks, which is similar to the notebook format used by Mathematica.
 
 Jupyter notebooks
 -----------------
 
 If you installed Python via the Anaconda distribution, you should already have installed Jupyter.
-If you installed Python in a differnt way, you may need to install Jupyter separately.
+If you installed Python in a different way, you may need to install Jupyter separately.
 To install Jupyter via pip, type the following into the command prompt:
 
     .. code-block:: bash
