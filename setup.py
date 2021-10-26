@@ -24,12 +24,24 @@ INSTALL_REQUIRES = [
                     "numpy>=1.15,<1.20",
                     "scipy",
                     ]
+PACKAGE_DATA = {
+    # Include example trajectory data in the "data" subdirectory
+    "trajectory": ['data/trajectory.csv'],
+}
 PYTHON_REQUIRES = ">=3.7, !=3.10.*"
 SETUP_REQUIRES = INSTALL_REQUIRES + [
     "setuptools>=40.6.0",
 ]
 TESTS_REQUIRE = [
     "unittest",
+]
+CLASSIFIERS = [
+    "License :: OSI Approved :: GNU General Public",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
 ]
 #pkginfo_path = os.path.join(this_directory,
 #                            'tweezepy',
@@ -45,12 +57,14 @@ setuptools.setup(name=NAME,
                  url=URL,
                  license=LICENSE,
                  packages=setuptools.find_packages(),
+                 package_data = {},
                  python_requires=PYTHON_REQUIRES,
                  long_description=long_description,
                  long_description_content_type = 'text/markdown',
                  install_requires = INSTALL_REQUIRES,
                  setup_requires = SETUP_REQUIRES,
                  tests_require=TESTS_REQUIRE,
+                 classifiers=CLASSIFIERS,
                  ) 
 
 # This call to setup() does all the work
