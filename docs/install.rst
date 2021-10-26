@@ -49,7 +49,8 @@ command prompt and typing
 To exit the Python interpreter, type
 
     .. code-block:: python
-        >>> quit()
+
+        quit()
 
 You can check the installed Python version by typing
 
