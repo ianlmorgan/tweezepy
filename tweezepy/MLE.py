@@ -181,7 +181,7 @@ class MLEfit(MCMC):
     scale_covar : bool, optional
         Whether to scale standard errors by reduced chi-squared, by default False
     fit_kwargs : dict, optional
-        Fitting keywork arguments to send to scipy.minimize, by default {'method':'Nelder-Mead'}
+        Disctionary of keyword arguments passed to scipy.minimize, by default {'method':'Nelder-Mead'}.
     
     Attributes
     ----------
@@ -229,7 +229,7 @@ class MLEfit(MCMC):
         self.nparams = len(self.fit['x'])
         self.success = self.fit['success']
         # Collect results into dictionary
-        self.results = {}
+        results = {}
         # Throw warning if fit fails
         if not self.success:
             print('MLE fitting failed to converge. %s'%self.fit['message'])
@@ -248,26 +248,29 @@ class MLEfit(MCMC):
         # Calculate residuals, chi2, and reduced chi2
         residuals = (y-yfit)/yerr; self.residuals = residuals
         self.data['residuals'] = residuals
-        self.chi2 = np.power(residuals,2).sum(); self.results['chi2'] = self.chi2
+        self.chi2 = np.power(residuals,2).sum(); results['chi2'] = self.chi2
         self.nfree = self.ndata-self.nparams
-        self.redchi2 = self.chi2/self.nfree; self.results['redchi2'] = self.redchi2
+        self.redchi2 = self.chi2/self.nfree; results['redchi2'] = self.redchi2
         # Scale errors by reduched chi-squared value
         if scale_covar:
             self.std_errors *= self.redchi2
         # Collect errors into results
         for i,p in enumerate(self.names):
-            self.results['%s'%p] = self.params[i]
-            self.results['%s_error'%p] = self.std_errors[i]
+            results['%s'%p] = self.params[i]
+            results['%s_error'%p] = self.std_errors[i]
         # Calculate fit support and p-value
         ks = stats.kstest(residuals,'chi2',args=(self.nfree,))
         self.support,self.p = ks
-        self.results['support'] = self.support
-        self.results['p-value'] = self.p
+        results['support'] = self.support
+        results['p-value'] = self.p
+        
         # Calculate loglikelihood
         self.loglikelihood = self.logL(self.params)
         # Calculate AIC, AICc, and BIC
-        self.AIC = 2.*(self.nparams-self.loglikelihood); self.results['AIC'] = self.AIC
-        self.AICc = self.AIC + (2*(pow(self.nparams,2)+self.nparams))/(self.ndata-self.nparams-1)
+        self.AIC = 2.*(self.nparams-self.loglikelihood); results['AIC'] = self.AIC
+        self.AICc = self.AIC + (2*(pow(self.nparams,2)+self.nparams))/(self.ndata-self.nparams-1) ; results['AICc'] = self.AICc
+        # Save results into private attribute
+        self._results = results
 
     def mcmc(self, walkers = 32, steps = 2000, discard = 100, thin = 10):
         """
@@ -291,10 +294,21 @@ class MLEfit(MCMC):
         for i,name in enumerate(self.names):
             std_l, median, std_u = percentiles[i]
             self.mcmc_params[i] = median
-            self.results['%s_mcmc'%name] = median
+            self._results['%s_mcmc'%name] = median
             std_error = 0.5 * (std_u - std_l)
             self.mcmc_std_errors[i] = std_error
-            self.results['%s_mcmc_error'%name] = 0.5 * (std_u - std_l)
+            self._results['%s_mcmc_error'%name] = 0.5 * (std_u - std_l)
+    @property
+    def results(self):
+        """
+        Dictionary of MLE fit results.
+
+        Returns
+        -------
+        dict
+            Dictionary of MLE fit results.
+        """
+        return self._results
 
 class Gamma_Distribution:
     """Gamma probability distribution class.

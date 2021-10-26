@@ -21,12 +21,13 @@ URL = "https://github.com/ianlmorgan/tweezepy"
 LICENSE = "LGPLv3+"
 
 INSTALL_REQUIRES = [
+                    "matplotlib",
                     "numpy>=1.15,<1.20",
                     "scipy",
                     ]
 PACKAGE_DATA = {
     # Include example trajectory data in the "data" subdirectory
-    "trajectory": ['data/trajectory.csv'],
+    "trajectory": ['data/*.csv'],
 }
 PYTHON_REQUIRES = ">=3.7, !=3.10.*"
 SETUP_REQUIRES = INSTALL_REQUIRES + [
@@ -36,7 +37,7 @@ TESTS_REQUIRE = [
     "unittest",
 ]
 CLASSIFIERS = [
-    "License :: OSI Approved :: GNU General Public License v3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.7",
@@ -57,7 +58,9 @@ setuptools.setup(name=NAME,
                  url=URL,
                  license=LICENSE,
                  packages=setuptools.find_packages(),
-                 package_data = {},
+                 include_package_data=True,
+                 package_data = PACKAGE_DATA,
+                 #data_files=[('trajectory',['data/trajectory.csv'])]
                  python_requires=PYTHON_REQUIRES,
                  long_description=long_description,
                  long_description_content_type = 'text/markdown',

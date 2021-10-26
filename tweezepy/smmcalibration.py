@@ -16,11 +16,25 @@ Author: Ian L. Morgan
 email: ilmorgan@ucsb.edu
 """
 import numpy as np
+import pkg_resources
 
 from scipy.signal import welch
 from tweezepy.allanvar import avar,totvar
 from tweezepy.MLE import MLEfit, Gamma_Distribution
 from tweezepy.expressions import aliasPSD,lansdorpPSD,SMMAV
+
+def load_trajectory():
+    """
+    Loads test bead trajectory sampled at 400 Hz.
+
+    Returns
+    -------
+    data : array-like
+        Bead trajectory data in nm
+    """
+    fname = pkg_resources.resource_stream(__name__, 'data/trajectory.csv')
+    data = np.loadtxt(fname)
+    return data
 
 class calibration(MLEfit):
     """
@@ -53,7 +67,7 @@ class calibration(MLEfit):
              data_color = None,
              fit_color = 'k'):
         """
-        Utility function for plotting 
+        Utility function for plotting.
 
         Parameters
         ----------
@@ -105,12 +119,18 @@ class calibration(MLEfit):
             if (len(ax) == 2):
                 ax[1].plot(data['x'],data['residuals'])
                 ax[1].set_xscale('log')
-                ax[0].get_xaxis().set_ticklabels([])       
+                ax[0].get_xaxis().set_ticklabels([])
+        if isinstance(self,AV):
+            ax[-1].set_xlabel(r'$\tau$ (s)')
+            ax[0].set_ylabel(r'$\sigma_{AV}^2$ (nm$^2$)')
+        if isinstance(self,PSD):
+            ax[-1].set_xlabel(r'$f$ (Hz)')
+            ax[0].set_ylabel(r'PSD (nm$^2$/Hz)')   
         return fig, ax
-    def make_guess(self, 
-                   kT = 4.1,
-                   viscosity = 8.94e-10,
-                   radius = 530):
+    def _make_guess(self, 
+                    kT = 4.1,
+                    viscosity = 8.94e-10,
+                    radius = 530):
         """
         Estimate gamma based on Stokes drag and kappa based on equipartition theorem.
 
@@ -130,19 +150,19 @@ class calibration(MLEfit):
         guess : list
             gamma and kappa guesses
         """
-        viscosity = viscosity
-        radius = radius
         # Make initial guess for kappa based on equipartition theorem
         kappa = kT/np.var(self.trace)
         # Make initial guess for alpha based on myone bead in water 
         gamma = 6 * np.pi * viscosity * radius 
         guess = [gamma,kappa]    
         return guess
-    def predefined(func,
-                   gamma = None,
-                   kappa = None,
-                   tracking_error = False,
-                   epsilon = None):
+    def _predefined(self,
+                    func,
+                    gamma = None,
+                    kappa = None,
+                    tracking_error = False,
+                    epsilon = None,
+                    ):
         if gamma and kappa and tracking_error:
              func2 = lambda e: func(gamma, kappa, e)
         elif gamma and tracking_error:
@@ -160,20 +180,119 @@ class calibration(MLEfit):
         else:
             func2 = lambda g,k: func(g,k,0)
         return func2
-    def mlefit(self,**kwargs):
+    def mlefit(self,
+               fitfunc = None, 
+               cutoffs = [-np.inf,np.inf],
+               tracking_error = False, 
+               guess = None, 
+               gamma = None, 
+               kappa = None, 
+               epsilon = None,
+               kT = 4.1, 
+               viscosity = 8.94e-10, 
+               radius = 530.,  
+               pedantic = True, 
+               scale_covar = False,
+               **kwargs):
+        """
+        Estimate parameters and uncertainties via maximum likelihood estimation.
+
+        Parameters
+        ----------
+        fitfunc : str or function, optional
+            String or user defined function, 
+            by default 'lansdorpPSD' for PSD and 'SMMAV' for AV
+        tracking_error : bool, optional
+            Incorporate tracking errors, by default False
+        guess : list, optional
+            Initial parameter guesses, by default None
+        gamma : float, optional
+            Fixed value for gamma parameter, by default None
+        kappa : float, optional
+            Fixed value for kappa parameter, by default None
+        epsilon : float, optional
+            Fixed value for epsilon parameter, by default None
+        pedantic : bool, optional
+            Ignore unhelpful warning messages, by default True
+        kT : float, optional
+            Thermal energy in pN nm, by default 4.1
+        viscosity : float, optional
+            Dynamic viscosity for initial parameter guesses in pN s/nm^2, by default 8.94e-10
+        radius : float, optional
+            Bead radius for inital parameter guesses in nm, by default 530.
+
+        """
+        if cutoffs:
+            assert len(cutoffs) == 2, "cutoffs should have a lower an upper cutoff in the form of [lower,upper]."
+        msk = (self.data_init['x']>=cutoffs[0])&(self.data_init['x']<=cutoffs[1])
+        for key,d in self.data_init.items():
+            self.data[key] = d[msk]        
+        x = self.data['x']
+        if isinstance(self,AV):
+            if not fitfunc:
+                fitfunc = 'SMMAV'
+            if fitfunc == 'SMMAV':
+                ts = 1/self.fsample
+                func = lambda g,k,e: SMMAV(x,ts,g,k,e,kT=kT)
+                func = self._predefined(func,
+                                        gamma=gamma,
+                                        kappa = kappa,
+                                        tracking_error=tracking_error,
+                                        epsilon = epsilon,
+                                        )
+        if isinstance(self,PSD):
+            # Select appropriate function
+            if not fitfunc:
+                fitfunc = 'lansdorpPSD'
+            if fitfunc == 'lansdorpPSD':
+                func = lambda g,k,e: lansdorpPSD(x,self.fsample,g,k,e,kT=kT)
+                func = self._predefined(func,
+                                        gamma=gamma,
+                                        kappa = kappa,
+                                        tracking_error=tracking_error,
+                                        epsilon = epsilon,
+                                        )
+            elif fitfunc == 'aliasPSD':
+                func = lambda g,k,e: aliasPSD(x,self.fsample,g,k,e,kT=kT)
+                func = self._predefined(func,
+                                        gamma=gamma,
+                                        kappa = kappa,
+                                        tracking_error=tracking_error,
+                                        epsilon = epsilon,
+                                        )
+            else:
+                func = fitfunc
+                if not guess:
+                    raise RuntimeError("User-provided function requires initial parameter guesses.")
+            self.func = func
         # If no guess provided, make default guess
-        if not self.guess:
+        if not guess:
             #make default guess based on Stoke's drag and equipartition theorem
-            guess = self.make_guess()
-            if self.gamma:
+            guess = self._make_guess(kT=kT,
+                                     viscosity=viscosity,
+                                     radius=radius)
+            if gamma:
                 guess.pop(0)
-            if self.kappa:
+            if kappa:
                 guess.pop(1)
-            if self.tracking_error:
+            if tracking_error:
                 guess.append(10)
         self.guess = guess
-        MLEfit.__init__(self, pedantic = self.pedantic, scale_covar = self.scale_covar, **kwargs)
+        MLEfit.__init__(self, pedantic = pedantic, scale_covar = scale_covar, **kwargs)
+    @property
+    def data(self):
+        """
+        Returns dictionary of data.
 
+        Returns
+        -------
+        dict
+            Dictionary of data.
+        """
+        return self._data
+    @data.setter
+    def data(self, value):
+        self._data = value
 class AV(calibration):
     """
     A class for computing and fitting the Allan variance using maximum likelihood estimation.
@@ -187,7 +306,8 @@ class AV(calibration):
     taus : str, optional
         Tau interval sampling. Options are 'octave', 'decade', and 'all', by default 'octave'
     mode : str, optional
-        Allan variance type, either 'avar', 'oavar', and 'totvar', by default 'oavar'
+        Allan variance type, either 'avar', 'oavar', and 'totvar', by default 'oavar'. 
+        See allanvar module for more information.
     edf : str, optional
         Equivalent degrees of freedom for AV. Options are 'real' and 'approx', by default 'real'
 
@@ -198,9 +318,9 @@ class AV(calibration):
 
     Examples
     --------
-    >>> from tweezepy import downsampled_trace
-    >>> trace = downsampled_trace() # Simulate sample data in nm
-    >>> av = AV(trace,fsample = 100) # Compute overlapping AV
+    >>> from tweezepy import load_trajectory, AV
+    >>> trace = load_trajectory() # Load trajectory in nm
+    >>> av = AV(trace, fsample = 400) # Compute overlapping AV
     >>> av.mlefit() # Perform MLE fit
     >>> print(av.results)
     """
@@ -222,133 +342,11 @@ class AV(calibration):
         # Probability distribution function
         self.gd = Gamma_Distribution(self.shape,self.y)
         self.yerr = self.gd.std(self.y)
-        self.data = {'x':self.x,
-                     'shape':self.shape,
-                     'y':self.y,
-                     'yerr':self.yerr}
+        self._data = {'x':self.x,
+                      'shape':self.shape,
+                      'y':self.y,
+                      'yerr':self.yerr}
         self.data_init = self.data.copy()
-    def plot(self,
-             fig = None,
-             fig_kwgs = {},
-             ax_fit_kwgs = {},
-             ax_res_kwgs = {},
-             data_label = None,
-             fit_label = None,
-             **kwargs):
-        """
-        Utility function for plotting 
-
-        Parameters
-        ----------
-        fig : Figure, optional
-            Matplotlib Figure object, by default None
-        fig_kwgs : dict, optional
-            Figure keyword arguments, by default {}
-        ax_fit_kwgs : dict, optional
-            Axis keyword arguments, by default {}
-        ax_res_kwgs : dict, optional
-            Axis keyword arguments, by default {}
-        data_label : str or None, optional
-            Data label for plotting multiple traces
-        fit_label : str or None, optional
-            Fit label for plotting multiple traces
-
-        Returns
-        -------
-        fig : Figure
-            The figure object.
-        ax : Axes
-            The axes object.
-        """
-        fig,ax = calibration.plot(self,
-                                  fig = fig,
-                                  fig_kwgs=fig_kwgs,
-                                  ax_fit_kwgs=ax_fit_kwgs,
-                                  ax_res_kwgs=ax_res_kwgs,
-                                  data_label=data_label,
-                                  fit_label=fit_label)
-        ax[-1].set_xlabel(r'$\tau$ (s)')
-        ax[0].set_ylabel(r'$\sigma_{AV}^2$ (nm$^2$)')
-        return fig, ax
-    def mlefit(self, 
-               fitfunc = 'SMMAV', 
-               cutoffs = [-np.inf,np.inf],
-               tracking_error = False, 
-               guess = None, 
-               gamma = None, 
-               kappa = None, 
-               epsilon = None,
-               kT = 4.1, 
-               viscosity = 8.94e-10, 
-               radius = 530.,  
-               pedantic = True, 
-               scale_covar = False,
-               **kwargs):
-        """
-        Estimate parameters and uncertainties via maximum likelihood estimation.
-
-        Parameters
-        ----------
-        fitfunc : str or function, optional
-            String or user defined function, by default 'SMMAV'
-        tracking_error : bool, optional
-            Incorporate tracking errors, by default False
-        guess : list, optional
-            Initial parameter guesses, by default None
-        gamma : float, optional
-            Fixed value for gamma parameter, by default None
-        kappa : float, optional
-            Fixed value for kappa parameter, by default None
-        epsilon : float, optional
-            Fixed value for epsilon parameter, by default None
-        kT : float, optional
-            Thermal energy used in functions and initial parameter guesses, by default 4.1
-        viscosity : float, optional
-            Dynamic viscosity for initial parameter guesses in pN s/nm^2, by default 8.94e-10
-        radius : float, optional
-            Bead radius for inital parameter guesses, by default 530.
-        pedantic : bool, optional
-            Ignore unhelpful warning messages, by default True
-        scale_covar: bool, optional
-            Whether to scale covariance by reduced chi-squared, by default False
-        **kwargs
-            keyword arguments passed to scipy's minimizer
-
-        """
-        self.cutoffs = cutoffs
-        self.tracking_error = tracking_error
-        self.guess = guess
-        self.gamma = gamma
-        self.kappa = kappa
-        self.epsilon = epsilon
-        self.kT = kT
-        self.viscosity = viscosity
-        self.radius = radius
-        self.pedantic = pedantic
-        self.scale_covar = scale_covar
-        if cutoffs:
-            assert len(cutoffs) == 2, "cutoffs should have a lower an upper cutoff in the form of [lower,upper]."
-            msk = (self.data_init['x']>=cutoffs[0])&(self.data_init['x']<=cutoffs[1])
-            for key,d in self.data_init.items():
-                self.data[key] = d[msk]        
-        x = self.data['x']
-        # Sampling time
-        ts = 1/self.fsample
-        # By default, use lansdorp SMM AV function
-        if fitfunc == 'SMMAV':
-            func = lambda g,k,e: SMMAV(x,ts,g,k,e,kT=kT)
-            func = calibration.predefined(func,
-                                          gamma=gamma,
-                                          kappa = kappa,
-                                          tracking_error=tracking_error,
-                                          epsilon = epsilon)
-        else:
-            # User provided function
-            func = fitfunc
-            if not guess:
-                raise RuntimeError("User-provided function requires initial parameter guesses.")
-        self.func = func #: analytical function to fit to
-        calibration.mlefit(self,**kwargs)
         
 class PSD(calibration,MLEfit):
     """
@@ -365,14 +363,18 @@ class PSD(calibration,MLEfit):
 
     Example
     -------
-    >>> from tweezepy import downsampled_trace            
-    >>> trace = downsampled_trace() # Simulate sample data
-    >>> psd = PSD(trace,fsample = 100) # Compute PSD using Welch's method
+    >>> from tweezepy import load_trajectory, PSD            
+    >>> trace = load_trajectory() # Load trajectory in nm
+    >>> psd = PSD(trace, fsample = 400) # Compute PSD using Welch's method
     >>> psd.mlefit() # Perform MLE fit
     >>> print(psd.results)
     """
 
-    def __init__(self, trace, fsample,bins=3,**kwargs):
+    def __init__(self, 
+                 trace, # input bead trajectory 
+                 fsample, # input sampling frequency in Hz
+                 bins=3, # input number of half-overlapping bins
+                 ):
         calibration.__init__(self, trace, fsample)
         N = len(trace)
         nperseg = (2.*N)/(bins+1)
@@ -386,130 +388,40 @@ class PSD(calibration,MLEfit):
         # Probability distribution function
         self.gd = Gamma_Distribution(self.shape,self.y)
         self.yerr = self.gd.std(self.y)
-        self.data = {'x':self.x,
-                     'shape':self.shape,
-                     'y':self.y,
-                     'yerr':self.yerr}
+        self._data = {'x':self.x,
+                      'shape':self.shape,
+                      'y':self.y,
+                      'yerr':self.yerr}
         self.data_init = self.data.copy()
-    def plot(self,
-             fig = None,
-             fig_kwgs = {},
-             ax_fit_kwgs = {},
-             ax_res_kwgs = {},
-             data_label = None,
-             fit_label = None,
-             **kwargs):
-        """
-        Utility function for plotting 
-
-        Parameters
-        ----------
-        fig : Figure, optional
-            Matplotlibe Figure object, by default None
-        fig_kwgs : dict, optional
-            Figure keyword arguments, by default {}
-        ax_fit_kwgs : dict, optional
-            Axis keyword arguments, by default {}
-        ax_res_kwgs : dict, optional
-            Axis keyword arguments, by default {}
-        label : str or None, optional
-            Data label for plotting multiple traces
-
-        Returns
-        -------
-        fig : Figure
-            The figure object.
-        ax : Axes
-            The axes object.
-        """
-        fig,ax = calibration.plot(self,
-                                  fig = fig,
-                                  fig_kwgs=fig_kwgs,
-                                  ax_fit_kwgs=ax_fit_kwgs,
-                                  ax_res_kwgs=ax_res_kwgs,
-                                  data_label=data_label,
-                                  fit_label=fit_label)    
-        ax[-1].set_xlabel(r'$f$ (Hz)')
-        ax[0].set_ylabel(r'PSD (nm$^2$/Hz)')
-        return fig,ax
-    def mlefit(self, 
-               fitfunc = 'lansdorpPSD', 
-               cutoffs = [-np.inf,np.inf],
-               tracking_error = False, 
-               guess = None, 
-               gamma = None, 
-               kappa = None, 
-               epsilon = None,
-               kT = 4.1, 
-               viscosity = 8.94e-10, 
-               radius = 530.,  
-               pedantic = True, 
-               scale_covar = False,
-               **kwargs):
-        """
-        Estimate parameters and uncertainties via maximum likelihood estimation.
-
-        Parameters
-        ----------
-        fitfunc : str or function, optional
-            String or user defined function, by default 'lansdorpPSD'
-        tracking_error : bool, optional
-            Incorporate tracking errors, by default False
-        guess : list, optional
-            Initial parameter guesses, by default None
-        gamma : float, optional
-            Fixed value for gamma parameter, by default None
-        kappa : float, optional
-            Fixed value for kappa parameter, by default None
-        epsilon : float, optional
-            Fixed value for epsilon parameter, by default None
-        pedantic : bool, optional
-            Ignore unhelpful warning messages, by default True
-        kT : float, optional
-            Thermal energy used in functions and initial parameter guesses, by default 4.1
-        viscosity : float, optional
-            Dynamic viscosity for initial parameter guesses in pN s/nm^2, by default 8.94e-10
-        radius : float, optional
-            Bead radius for inital parameter guesses, by default 530.
-
-        """
-        self.fitfunc = fitfunc
-        self.cutoffs = cutoffs
-        self.tracking_error = tracking_error
-        self.guess = guess
-        self.gamma = gamma
-        self.kappa = kappa
-        self.epsilon = epsilon
-        self.kT = kT
-        self.viscosity = viscosity
-        self.radius = radius
-        self.pedantic = pedantic
-        self.scale_covar = scale_covar
-        if cutoffs:
-            assert len(cutoffs) == 2, "cutoffs should have a lower an upper cutoff in the form of [lower,upper]."
-            msk = (self.data_init['x']>=cutoffs[0])&(self.data_init['x']<=cutoffs[1])
-            for key,d in self.data_init.items():
-                self.data[key] = d[msk]        
-        x = self.data['x']
-        # Select appropriate function
-        if fitfunc == 'lansdorpPSD':
-            func = lambda g,k,e: lansdorpPSD(x,self.fsample,g,k,e,kT=kT)
-            func = calibration.predefined(func,
-                                          gamma=gamma,
-                                          kappa = kappa,
-                                          tracking_error=tracking_error,
-                                          epsilon = epsilon)
-        elif fitfunc == 'aliasPSD':
-            func = lambda g,k,e: aliasPSD(x,self.fsample,g,k,e,kT=kT)
-            func = calibration.predefined(func,
-                                          gamma=gamma,
-                                          kappa = kappa,
-                                          tracking_error=tracking_error,
-                                          epsilon = epsilon)
-        else:
-            func = fitfunc
-            if not guess:
-                raise RuntimeError("User-provided function requires initial parameter guesses.")
-        self.func = func
-        calibration.mlefit(self, **kwargs)
+    
+    #def mlefit(self, 
+    #           fitfunc = 'lansdorpPSD', 
+    #           cutoffs = [-np.inf,np.inf],
+    #           tracking_error = False, 
+    #           guess = None, 
+    #           gamma = None, 
+    #           kappa = None, 
+    #           epsilon = None,
+    #           kT = 4.1, 
+    #           viscosity = 8.94e-10, 
+    #           radius = 530.,  
+    #           pedantic = True, 
+    #           scale_covar = False,
+    #           **kwargs):
+        
+    #    self.fitfunc = fitfunc
+    #    self.cutoffs = cutoffs
+    #    self.tracking_error = tracking_error
+    #    self.guess = guess
+    #    self.gamma = gamma
+    #    self.kappa = kappa
+    #    self.epsilon = epsilon
+    #    self.kT = kT
+    #    self.viscosity = viscosity
+    #    self.radius = radius
+    #    self.pedantic = pedantic
+    #    self.scale_covar = scale_covar
+    #    
+    #    
+    #    calibration.mlefit(self, **kwargs)
 

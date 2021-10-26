@@ -1,5 +1,6 @@
 from .smmcalibration import AV
 from .smmcalibration import PSD
+from .smmcalibration import load_trajectory
 from .simulations import simulate_trace
 from .simulations import downsampled_trace
 
@@ -24,5 +25,6 @@ __all__ = [
            "PSD",
            "simulate_trace",
            "downsampled_trace",
+           "load_trajectory",
            "__version__",
            ]
