@@ -29,15 +29,14 @@ If you do not want to install Python via the Anaconda distribution,
 there are a number of other ways to install Python. For example,
 you can install it via the `official distribution <https://www.python.org/downloads>`_.
 
-.. important::
 
-    Currently, Python 3.10.x is incompatible with many standard scientific computing
-    packages, including those used by **Tweezepy**. You should install the latest
-    version of 3.9.x. until further notice.
+Currently, Python 3.10.x is incompatible with many standard scientific computing
+packages, including those used by **Tweezepy**. You should install the latest
+version of 3.9.x. until further notice.
 
 If you install Python separately, you may need to install some additional packages.
 If you follow this guide, these additional packages should be installed automatically.
-They are also listing in the requirements.txt file.
+They are also listed in the requirements.txt file.
 
 Ensure you can run Python
 -------------------------
@@ -124,9 +123,6 @@ such as Spyder, Visual Studio Code, or Sublime text.
 
 Alternatively, it can be convenient to use Jupyter Notebooks, which is similar to the notebook format used by Mathematica.
 
-Jupyter notebooks
------------------
-
 If you installed Python via the Anaconda distribution, you should already have installed Jupyter.
 If you installed Python in a different way, you may need to install Jupyter separately.
 To install Jupyter via pip, type the following into the command prompt:
@@ -134,6 +130,9 @@ To install Jupyter via pip, type the following into the command prompt:
     .. code-block:: bash
 
         python -m pip install jupyter
+
+Running Jupyter notebooks
+*************************
 
 Once you've installed Jupyter, you can launch a Jupyter notebook via the command prompt:
 
