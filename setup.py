@@ -13,7 +13,7 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 NAME = "Tweezepy"
-VERSION = "1.1.6"
+VERSION = "1.1.7"
 DESCRIPTION = "Single-molecule force spectroscopy calibration"
 AUTHOR = "Ian L. Morgan"
 AUTHOR_EMAIL = "ilmorgan@ucsb.edu"

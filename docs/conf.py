@@ -83,8 +83,8 @@ html_theme_options = {
     'repository_branch': "master",
     #"repository_branch": "ian-local", # For testing
     "launch_buttons": {
-        "binderhub_url": "https://mybinder.org",
-        "colab_url": "https://colab.research.google.com/",
+        "binderhub_url": "https://mybinder.org/v2/gh/ianlmorgan/tweezepy/HEAD",
+        #"colab_url": "https://colab.research.google.com/",
         #"notebook_interface": "classic",
     },
     "use_edit_page_button": True,
@@ -92,5 +92,5 @@ html_theme_options = {
     "use_repository_button": True,
     "use_download_button": True,
 }
-html_baseurl = "https://tweezepy.readthedocs.io/en/latest/"
+#html_baseurl = "https://tweezepy.readthedocs.io/en/latest/"
 #jupyter_execute_notebooks = "off"

@@ -33,7 +33,7 @@ def load_trajectory():
         Bead trajectory data in nm
     """
     fname = pkg_resources.resource_stream(__name__, 'data/trajectory.csv')
-    data = np.loadtxt(fname)
+    data = np.loadtxt(fname, delimiter=',')
     return data
 
 class calibration(MLEfit):
@@ -338,9 +338,9 @@ class AV(calibration):
         assert mode in ['avar','oavar','totvar'], "mode must be either avar, oavar, or totvar."
         assert edf in ['real','approx'], "edf must be either real or approx."
         if mode == 'avar':
-            taus, edfs, oavs = avar(trace, rate = fsample, taus = taus,edf=edf)
+            taus, edfs, oavs = avar(trace, rate = fsample, taus = taus,edf=edf, overlapping = False)
         elif mode == 'oavar':
-            taus, edfs, oavs = avar(trace, rate = fsample, taus = taus,edf=edf,overlapping = True)
+            taus, edfs, oavs = avar(trace, rate = fsample, taus = taus,edf=edf, overlapping = True)
         elif mode == 'totvar':
             taus, edfs, oavs = totvar(trace, rate = fsample, taus = taus,edf=edf)
         self.x = taus
@@ -400,35 +400,3 @@ class PSD(calibration,MLEfit):
                       'y':self.y,
                       'yerr':self.yerr}
         self.data_init = self.data.copy()
-    
-    #def mlefit(self, 
-    #           fitfunc = 'lansdorpPSD', 
-    #           cutoffs = [-np.inf,np.inf],
-    #           tracking_error = False, 
-    #           guess = None, 
-    #           gamma = None, 
-    #           kappa = None, 
-    #           epsilon = None,
-    #           kT = 4.1, 
-    #           viscosity = 8.94e-10, 
-    #           radius = 530.,  
-    #           pedantic = True, 
-    #           scale_covar = False,
-    #           **kwargs):
-        
-    #    self.fitfunc = fitfunc
-    #    self.cutoffs = cutoffs
-    #    self.tracking_error = tracking_error
-    #    self.guess = guess
-    #    self.gamma = gamma
-    #    self.kappa = kappa
-    #    self.epsilon = epsilon
-    #    self.kT = kT
-    #    self.viscosity = viscosity
-    #    self.radius = radius
-    #    self.pedantic = pedantic
-    #    self.scale_covar = scale_covar
-    #    
-    #    
-    #    calibration.mlefit(self, **kwargs)
-
