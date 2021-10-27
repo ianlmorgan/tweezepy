@@ -177,11 +177,14 @@ class MLEfit(MCMC):
     Parameters
     ----------
     pedantic : bool, optional
-        Ignore unhelpful warnings, by default True
+        Ignore unhelpful warnings,
+        by default True
     scale_covar : bool, optional
-        Whether to scale standard errors by reduced chi-squared, by default False
+        Whether to scale standard errors by reduced chi-squared,
+        by default False
     fit_kwargs : dict, optional
-        Disctionary of keyword arguments passed to scipy.minimize, by default {'method':'Nelder-Mead'}.
+        Disctionary of keyword arguments passed to scipy.optimize.minimize, 
+        by default {}.
     
     Attributes
     ----------
@@ -200,7 +203,7 @@ class MLEfit(MCMC):
     AICc : float 
         Corrected Akaike information criterion. 
     """
-    def __init__(self, pedantic = True, scale_covar = False,fit_kwargs = {'method':'Nelder-Mead'}):
+    def __init__(self, pedantic = True, scale_covar = False, minimizer_kwargs = {}):
         if pedantic == False:
             np.seterr('warn')
         elif pedantic == True:
@@ -221,7 +224,7 @@ class MLEfit(MCMC):
         # Use automatic differentiation to calculate hessian
         hess = hessian(self.negLL)
         # Minimize negative log likelihood
-        self.fit = minimize(self.negLL,x0=self.guess,**fit_kwargs)
+        self.fit = minimize(self.negLL,x0=self.guess,method = 'Nelder-Mead',**minimizer_kwargs)
         # Save minimizer fit results
         self.params = self.fit['x']
         self.nparams = len(self.fit['x'])

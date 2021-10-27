@@ -193,7 +193,7 @@ class calibration(MLEfit):
                radius = 530.,  
                pedantic = True, 
                scale_covar = False,
-               **kwargs):
+               minimizer_kwargs = {}):
         """
         Estimate parameters and uncertainties via maximum likelihood estimation.
 
@@ -220,7 +220,8 @@ class calibration(MLEfit):
             Dynamic viscosity for initial parameter guesses in pN s/nm^2, by default 8.94e-10
         radius : float, optional
             Bead radius for inital parameter guesses in nm, by default 530.
-
+        minimizer_kwargs : dict, optional
+            Keyword arguments to send to scipy.optimize.minimize.
         """
         if cutoffs:
             assert len(cutoffs) == 2, "cutoffs should have a lower an upper cutoff in the form of [lower,upper]."
@@ -285,7 +286,7 @@ class calibration(MLEfit):
             if tracking_error:
                 guess.append(10)
         self.guess = guess
-        MLEfit.__init__(self, pedantic = pedantic, scale_covar = scale_covar, **kwargs)
+        MLEfit.__init__(self, pedantic = pedantic, scale_covar = scale_covar, **minimizer_kwargs)
     @property
     def data(self):
         """
