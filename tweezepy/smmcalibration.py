@@ -228,6 +228,7 @@ class calibration(MLEfit):
         for key,d in self.data_init.items():
             self.data[key] = d[msk]        
         x = self.data['x']
+
         if isinstance(self,AV):
             if not fitfunc:
                 fitfunc = 'SMMAV'
@@ -240,10 +241,16 @@ class calibration(MLEfit):
                                         tracking_error=tracking_error,
                                         epsilon = epsilon,
                                         )
+            else:
+                func = fitfunc
+                if not guess:
+                    raise RuntimeError("User-provided function requires initial parameter guesses.")
+            
         if isinstance(self,PSD):
             # Select appropriate function
             if not fitfunc:
                 fitfunc = 'lansdorpPSD'
+
             if fitfunc == 'lansdorpPSD':
                 func = lambda g,k,e: lansdorpPSD(x,self.fsample,g,k,e,kT=kT)
                 func = self._predefined(func,
@@ -264,7 +271,7 @@ class calibration(MLEfit):
                 func = fitfunc
                 if not guess:
                     raise RuntimeError("User-provided function requires initial parameter guesses.")
-            self.func = func
+        self.func = func
         # If no guess provided, make default guess
         if not guess:
             #make default guess based on Stoke's drag and equipartition theorem
