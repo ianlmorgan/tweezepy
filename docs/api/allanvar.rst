@@ -1,6 +1,6 @@
 .. _allanvar:
 
-Allanvar 
+allanvar 
 ========
 
 .. automodule:: tweezepy.allanvar

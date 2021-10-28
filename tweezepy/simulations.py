@@ -11,10 +11,11 @@ def simulate_trace(gamma = 1.e-5,
                    fsim = 400,
                    sim_points = 10240,
                    seed = None):
-    """Takes parameters and gives a simulated bead trajectory.
+    """
+    Takes parameters and gives a simulated bead trajectory.
 
     .. math::
-        \Delta x = \\frac{\Delta t}{\\alpha}\left(\sqrt{\\frac{2\\alpha k_BT}{dt}} F_L-\\kappa x_{i-1}\\right)
+        \Delta x = \\frac{\Delta t}{\\gamma}\left(\sqrt{\\frac{2\\gamma k_BT}{dt}} F_L-\\kappa x_{i-1}\\right)
     .. math:: 
         x_i = x_{i-1}+dx
 

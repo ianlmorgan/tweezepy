@@ -50,7 +50,7 @@ def calc_avar(phase,rate,mj,step):
     avar = np.sum(v_arr*v_arr)/(2.*nmin*pow(mj/rate,2))
     return avar
 
-def avar(data,rate = 1.0,taus = 'octave', overlapping = True, edf = 'approx'):
+def avar(data, rate = 1.0, taus = 'octave', overlapping = True, edf = 'approx'):
     """
     Calculates the standard and overlapping Allan variance.
     Takes an array of bead positions. Returns the taus, edfs, and oavs.
@@ -59,10 +59,11 @@ def avar(data,rate = 1.0,taus = 'octave', overlapping = True, edf = 'approx'):
         \\sigma^2_{AV}(\\tau) = { 1 \\over 2 (m \\tau_s )^2 (N-2m+1) }
         \\sum_{n=0}^{N-2m} ( {z}_{n+2m} - 2z_{n+1m} + z_{n} )^2
 
-    where :math:`z_n=0` and `n=1,\\ldots,N`
+    where :math:`z_1=0`, `n=1,...,N`, and
     
-    ..math::
-        z_n = {1 \\over m_k} \\sum_{j=1}^{j-1} x_j 
+    .. math::
+        z_n = {1 \\over m_k}
+        \\sum_{j=1}^{j-1} x_j 
 
     where :math:`\\sigma^2_x(m\\tau_s)` is the Allan variance at an averaging time of :math:`\\tau=m_k\\tau_s`, and :math:`x_j` is the time-series of bead positions, spaced by the measurement interval :math:`\\tau_s`, with length :math:`N`.
 
@@ -75,7 +76,7 @@ def avar(data,rate = 1.0,taus = 'octave', overlapping = True, edf = 'approx'):
 
     Returns
     -------
-    (taus,edfs,oavs) : tuple
+    (taus, edfs, oavs) : tuple
         Tuple of computed values.
     taus : array
         Observation times.
