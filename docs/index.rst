@@ -5,15 +5,20 @@ Welcome to Tweezepy's documentation!
 
 Development of ``Tweezepy`` happens on `Github <https://github.com/ianlmorgan/tweezepy>`_ so you can raise any bugs, documentation improvements, or feature requests `there <https://github.com/ianlmorgan/tweezepy/issues>`_.
 
-How to use this guide
----------------------
-To install ``Tweezepy``, you should follow the :ref:`install` guide. After you install it, you can learn about how to use it from the tutorials listed below (start with quickstart and go from there). A description of all the code, including expected inputs and outputs, can be found in the API section.
+Installing Tweezepy
+-------------------
+To install ``Tweezepy``, follow the :ref:`install` guide. 
 
 .. toctree::
     :maxdepth: 1
     :caption: User Guide
 
     install
+
+Using Tweezepy
+--------------
+After you install ``Tweezepy``, you can learn how to use it with the tutorials listed below 
+(start with quickstart and go from there). 
 
 .. toctree::
     :maxdepth: 1
@@ -23,7 +28,11 @@ To install ``Tweezepy``, you should follow the :ref:`install` guide. After you i
     pages/mcmc
     pages/simulations
 
-In the API, you can find a list of the classes and modules in ``Tweezepy`` including all their expected inputs and outputs. The main user-facing classes ``AV`` and ``PSD`` are pat of the ``smmcalibration`` module.
+API
+---
+A description of all the modules, classes, and functions in ``Tweezepy``, 
+including expected inputs and outputs, can be found in the API section. 
+The main user-facing classes ``AV`` and ``PSD`` are pat of the ``smmcalibration`` module.
 
 .. toctree::
     :maxdepth: 1
