@@ -1,1 +1,1 @@
-include data/*.csv
+recursive-include tweezepy/data *

@@ -9,7 +9,9 @@ this_dir = os.path.dirname(os.path.abspath(__file__))
 
 class test_load_trajetory(unittest.TestCase):
     def setUp(self):
-        load_trajectory()
+        data = load_trajectory()
+        data2 = np.loadtxt('data/trajectory.csv',delimiter = ',')
+        np.testing.aserry_allclose(data,data2)
 
 class test_calibration(object):
     def setUp(self):
