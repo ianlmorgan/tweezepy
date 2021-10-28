@@ -16,7 +16,7 @@ Author: Ian L. Morgan
 email: ilmorgan@ucsb.edu
 """
 import numpy as np
-#import pkg_resources
+import pkg_resources
 
 from scipy.signal import welch
 from tweezepy.allanvar import avar,totvar
