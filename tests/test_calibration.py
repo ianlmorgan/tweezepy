@@ -2,10 +2,14 @@ import os
 import numpy as np
 import unittest
 
-from tweezepy import AV,PSD
+from tweezepy import AV,PSD,load_trajectory
 
 from matplotlib.testing.decorators import cleanup
 this_dir = os.path.dirname(os.path.abspath(__file__))
+
+class test_load_trajetory(unittest.TestCase):
+    def setUp(self):
+        load_trajectory()
 
 class test_calibration(object):
     def setUp(self):
