@@ -16,7 +16,7 @@ Author: Ian L. Morgan
 email: ilmorgan@ucsb.edu
 """
 import numpy as np
-import pkg_resources
+#import pkg_resources
 
 from scipy.signal import welch
 from tweezepy.allanvar import avar,totvar
@@ -32,7 +32,10 @@ def load_trajectory():
     data : array-like
         Bead trajectory data in nm
     """
-    fname = pkg_resources.resource_stream(__name__, 'data/trajectory.csv')
+    import os 
+    this_dir, this_filename = os.path.split(__file__)
+    fname = os.path.join(this_dir, "data", "trajectory.csv")
+    #fname = pkg_resources.resource_stream(__name__, 'data/trajectory.csv')
     data = np.loadtxt(fname, delimiter=',')
     return data
 

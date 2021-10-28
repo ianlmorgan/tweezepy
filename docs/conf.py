@@ -95,4 +95,3 @@ html_theme_options = {
 jupyter_execute_notebooks = "off"
 execution_timeout = -1
 #html_baseurl = "https://tweezepy.readthedocs.io/en/latest/"
-#jupyter_execute_notebooks = "off"

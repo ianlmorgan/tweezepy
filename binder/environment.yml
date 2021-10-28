@@ -1,0 +1,16 @@
+name: tweezepy
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - matplotlib
+  - numpy
+  - scipy
+  - corner
+  - emcee
+  - autograd
+  - pip
+  - pip:
+    - autograd
+    - ..
+
