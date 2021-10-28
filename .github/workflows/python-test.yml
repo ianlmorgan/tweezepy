@@ -1,7 +1,7 @@
 name: Test
 on: 
   push:
-    branches: [ master ]
+    branches: [ main ]
 jobs:
   tests:
     runs-on: ${{ matrix.os }}
