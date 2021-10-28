@@ -92,7 +92,7 @@ html_theme_options = {
     "use_repository_button": True,
     "use_download_button": True,
 }
-jupyter_execute_notebooks = "off"
-execution_timeout = -1
+#jupyter_execute_notebooks = "off"
+#execution_timeout = -1
 #html_baseurl = "https://tweezepy.readthedocs.io/en/latest/"
 #jupyter_execute_notebooks = "off"
