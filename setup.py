@@ -13,7 +13,7 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 # This call to setup() does all the work
 setuptools.setup(name="Tweezepy",
-                 version="1.1.8",
+                 version="1.2.0",
                  author="Ian L. Morgan",
                  author_email="ilmorgan@ucsb.edu",
                  description="Single-molecule force spectroscopy calibration",
