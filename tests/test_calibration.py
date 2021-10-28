@@ -2,18 +2,10 @@ import os
 import numpy as np
 import unittest
 
-from tweezepy import AV,PSD,load_trajectory
+from tweezepy import AV, PSD
 
 from matplotlib.testing.decorators import cleanup
 this_dir = os.path.dirname(os.path.abspath(__file__))
-
-class test_load_trajetory(unittest.TestCase):
-    def setUp(self):
-        self.data = load_trajectory()
-        
-    def test_load(self):
-        data2 = np.loadtxt('data/trajectory.csv',delimiter = ',')
-        np.testing.assert_allclose(self.data,data2)
 
 class test_calibration(object):
     def setUp(self):
