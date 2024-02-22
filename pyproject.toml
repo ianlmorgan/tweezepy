@@ -1,5 +1,27 @@
 [build-system]
-# These are the assumed default build requirements from pip:
-# https://pip.pypa.io/en/stable/reference/pip/#pep-517-and-518-support
 requires = ["setuptools>=40.8.0", "wheel"]
 build-backend = "setuptools.build_meta"
+[project]
+name = "tweezepy"
+version = "1.2.7"
+authors = [
+  { name="Ian L Morgan", email="ian.morgan@nih.gov" },
+]
+description = "Tweezepy"
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "autograd",
+    "numpy>=1.15",
+    "scipy"
+]
+[project.urls]
+Documentation = "https://tweezepy.readthedocs.io/"
+Repository = "https://github.com/ianlmorgan/tweezepy"
+Issues = "https://github.com/ianlmorgan/tweezepy/issues"
+Changelog = "https://github.com/ianlmorgan/tweezepy/CHANGELOG.md"
