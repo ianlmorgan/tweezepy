@@ -17,6 +17,7 @@ classifiers = [
 ]
 dependencies = [
     "autograd",
+    "importlib_metadata; python_version < '3.8'",
     "numpy>=1.15",
     "scipy"
 ]

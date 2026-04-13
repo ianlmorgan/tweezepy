@@ -1,11 +1,23 @@
 import os
 import numpy as np
 import unittest
+from functools import wraps
 
 from tweezepy import AV, PSD
+import matplotlib.pyplot as plt
 
-from matplotlib.testing.decorators import cleanup
 this_dir = os.path.dirname(os.path.abspath(__file__))
+
+
+def cleanup(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        finally:
+            plt.close('all')
+
+    return wrapper
 
 class test_calibration(object):
     def setUp(self):

@@ -16,7 +16,8 @@ Author: Ian L. Morgan
 email: ilmorgan@ucsb.edu
 """
 import numpy as np
-import pkg_resources
+import io
+import pkgutil
 
 from scipy.signal import welch
 from tweezepy.allanvar import avar, totvar
@@ -33,8 +34,10 @@ def load_trajectory():
     data : array-like
         Bead trajectory data in nm
     """
-    fname = pkg_resources.resource_stream(__name__, 'data/trajectory.csv')
-    data = np.loadtxt(fname, delimiter=',')
+    raw_data = pkgutil.get_data("tweezepy", "data/trajectory.csv")
+    if raw_data is None:
+        raise FileNotFoundError("Could not load tweezepy data/trajectory.csv")
+    data = np.loadtxt(io.StringIO(raw_data.decode("utf-8")), delimiter=',')
     return data
 
 

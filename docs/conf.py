@@ -13,11 +13,14 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-from pkg_resources import DistributionNotFound,get_distribution
+try:
+    from importlib.metadata import PackageNotFoundError, version
+except ImportError:  # Python < 3.8
+    from importlib_metadata import PackageNotFoundError, version
 
 try:
-    __version__ = get_distribution("tweezepy").version
-except DistributionNotFound:
+    __version__ = version("tweezepy")
+except PackageNotFoundError:
     __version__ = "unknown version"
 
 # -- Project information -----------------------------------------------------
